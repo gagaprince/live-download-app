@@ -1,7 +1,8 @@
 export const Event = {
-    TEST: 'test',
-}
+  TEST: 'test',
+};
 
 export const HandleEvents = {
-    TEST: 'test',
+  TEST: 'test',
+  GET_WORKSPACE: 'get_workspace',
 };
