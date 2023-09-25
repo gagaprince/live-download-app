@@ -33,7 +33,7 @@
 export default {
   data() {
     return {
-      activeMenu: '/living-download',
+      activeMenu: '/living-room-info',
     };
   },
   watch: {
