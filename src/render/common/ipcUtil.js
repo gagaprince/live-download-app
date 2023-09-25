@@ -37,3 +37,7 @@ export const getWorkspace = async () => {
   console.log('workspace:', ret);
   return ret;
 };
+
+export const anysisRoomInfo = async (link) => {
+  return await ipcRenderer.invoke(HandleEvents.ANYSIS_ROOM_INFO, link);
+};

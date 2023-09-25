@@ -28,7 +28,7 @@ export const initIpc = () => {
   });
   Object.keys(HandleEvents).forEach((key) => {
     console.log(HandleEvents[key]);
-    ipcMain.handle(HandleEvents[key], (...args) => {
+    ipcMain.handle(HandleEvents[key], (event, ...args) => {
       const handler = handlerMap[HandleEvents[key]];
       if (handler) {
         if (handler.invoke) return handler.invoke(...args);
