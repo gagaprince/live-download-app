@@ -1,1 +1,1 @@
-<template>直播下载</template>
+<template><div>直播下载</div></template>

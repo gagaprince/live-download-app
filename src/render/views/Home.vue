@@ -1,13 +1,21 @@
 <template>
   <div class="container">
     <el-container>
-      <el-header class="header"> 抖音直播下载工具 </el-header>
+      <el-header class="header">
+        抖音直播下载工具
+      </el-header>
       <el-container>
         <el-aside width="200px">
-          <el-menu :default-active="activeMenu" class="menu" router>
+          <el-menu
+            :default-active="activeMenu"
+            class="menu"
+            router
+          >
             <el-menu-item index="/living-room-info">
               <el-icon><VideoPlay /></el-icon>
-              <span>直播间信息管理</span>
+              <span>
+                直播间信息管理
+              </span>
             </el-menu-item>
             <el-menu-item index="/living-download">
               <el-icon><Download /></el-icon>
@@ -23,7 +31,7 @@
             </el-menu-item>
           </el-menu>
         </el-aside>
-        <el-main><router-view></router-view></el-main>
+        <el-main><router-view /></el-main>
       </el-container>
     </el-container>
   </div>
@@ -31,16 +39,16 @@
 
 <script>
 export default {
-  data() {
-    return {
-      activeMenu: '/living-room-info',
-    };
-  },
-  watch: {
-    $route(to) {
-      this.activeMenu = to.path;
+    data() {
+        return {
+            activeMenu: '/living-room-info',
+        };
     },
-  },
+    watch: {
+        $route(to) {
+            this.activeMenu = to.path;
+        },
+    },
 };
 </script>
 
