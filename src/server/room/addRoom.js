@@ -21,32 +21,38 @@ export const anysisFromLink = async (link) => {
     console.log('要分析的链接： ', link);
     let ret;
     try {
-        ret = await axios.post('https://vd.gagaprince.top/smallvideo/douyinLive', {
+        // ret = await axios.post('https://vd.gagaprince.top/smallvideo/douyinLive', {
+        ret = await axios.post('http://localhost:3000/smallvideo/douyinLive', {
             url: link,
         });
 
         const { status } = ret;
         if (status === 200) {
             const roomInfo = ret.data.data;
-            //   console.log(roomInfo);
+            console.log(roomInfo);
             if (roomInfo) {
-                const roomId = '';
+                const roomId = roomInfo.roomId;
+                const webRoomId = roomInfo.webRoomId;
+                const roomTitle = roomInfo.roomTitle;
                 const owner = roomInfo.owner.nickname;
                 const avatar = roomInfo.owner.avatar_thumb.url_list[0];
                 const liveLink = link;
                 const flvLink = roomInfo.flv;
                 return {
                     roomId,
+                    webRoomId,
+                    roomTitle,
                     owner,
                     avatar,
                     liveLink,
                     flvLink,
+                    isOnline: !!flvLink,
                 };
             }
         }
     } catch (e) {
         console.error(e);
-        return null;
+        return {};
     }
     return ret;
 };
@@ -54,8 +60,15 @@ export const anysisFromLink = async (link) => {
 
 export const addRoom = (roomInfo) => {
     const roomInfos = getRoomInfos();
-    roomInfos.push(roomInfo);
+    // 此处需要查询当前房间信息中是否已经存在要存入的房间
+    const roomIn = roomInfos.find((item) => item.roomId === roomInfo.roomId);
+    if (roomIn) {
+        Object.assign(roomIn, roomInfo);
+    } else {
+        roomInfos.push(roomInfo);
+    }
     saveRoomInfos(roomInfos);
+    return true;
 };
 
 registHandle(HandleEvents.ADD_ROOM, addRoom);

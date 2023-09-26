@@ -102,7 +102,7 @@
   </div>
 </template>
 <script>
-import { searchRoomInfos } from '@/render/common/ipcUtil';
+import { searchRoomInfos, anysisRoomInfo, addRoom } from '@/render/common/ipcUtil';
 
 export default {
     data() {
@@ -138,9 +138,34 @@ export default {
             // 添加房间的弹窗
             this.addRoomModalFlag = true;
         },
-        submitAddForm() {
-            // 提交增加room
-            console.log('分析room信息:', this.addRoomObj);
+        async submitAddForm() {
+            try {
+                // 提交增加room
+                console.log('分析room信息:', this.addRoomObj);
+                const roomInfo = await anysisRoomInfo(this.addRoomObj.link);
+                console.log('获取的roomInfo:', roomInfo);
+                if (roomInfo && roomInfo.roomId) {
+                    // 添加roomInfo
+                    const saveFlag = await addRoom(roomInfo);
+                    if (saveFlag) {
+                        this.$message({
+                            message: '添加成功',
+                            type: 'success',
+                        });
+                    }
+                } else {
+                    this.$message({
+                        message: '添加失败,获取房间信息失败',
+                        type: 'error',
+                    });
+                }
+            } catch (e) {
+                console.error(e);
+                this.$message({
+                    message: '添加失败',
+                    type: 'error',
+                });
+            }
         },
         closeAddRoomDialog() {
             this.addRoomModalFlag = false;

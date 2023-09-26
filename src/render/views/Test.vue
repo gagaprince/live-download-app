@@ -22,7 +22,6 @@
     <el-table-column
       prop="roomId"
       label="房间号"
-      width="180"
     />
 
     <el-table-column
