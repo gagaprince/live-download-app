@@ -34,6 +34,13 @@ export const invokeTest = async () => {
 
 export const getWorkspace = async () => {
   const ret = await ipcRenderer.invoke(HandleEvents.GET_WORKSPACE);
-  console.log('workspace:', ret);
   return ret;
 };
+
+export const setWorkspace = async (path) => {
+    return await ipcRenderer.invoke(HandleEvents.SET_WORKSPACE, path);
+};
+
+export const searchRoomInfos = async (opt) => {
+    return await ipcRenderer.invoke(HandleEvents.SEARCH_ROOM_INFOS, opt);
+}

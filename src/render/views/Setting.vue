@@ -1,5 +1,6 @@
 <template>
   <div>
+    <input style="display:none;" type="file" ref="directoryInput" webkitdirectory @change="handleDirectoryChange">
     <el-text> 设置 </el-text>
     <el-row class="workspace-setting">
       <el-col :span="3" class="h-c">
@@ -24,20 +25,20 @@
     </el-row>
     <el-row class="bottom-row">
       <el-col :span="15" class="bottom-row-center">
-        <el-button type="primary">保存</el-button>
+        <el-button type="primary" @click="saveConfig">保存</el-button>
       </el-col>
     </el-row>
   </div>
 </template>
 <script>
-import { getWorkspace } from '@/render/common/ipcUtil';
+import { getWorkspace, setWorkspace } from '@/render/common/ipcUtil';
 export default {
   mounted() {
     this.initWorkspace();
   },
   data() {
     return {
-      workspace: 'D://wwx/sdf/2d',
+      workspace: '',
     };
   },
   methods: {
@@ -46,8 +47,24 @@ export default {
       this.workspace = workspace;
     },
     selectFolder() {
-      console.log('选择文件夹');
+      this.$refs.directoryInput.click();
     },
+    handleDirectoryChange(event) {
+      const files = event.target.files
+      if (files.length > 0) {
+        const file = files[0];
+        this.workspace = file.path.replace(file.name, '');
+      }
+    },
+    saveConfig() { 
+      const flag = setWorkspace(this.workspace);
+      if (flag) {
+        this.$message({
+          message: '保存成功',
+          type: 'success'
+        })
+      }
+    }
   },
 };
 </script>
