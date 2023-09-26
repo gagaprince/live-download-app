@@ -3,6 +3,7 @@ import Home from '@/render/views/Home.vue';
 import Setting from '@/render/views/Setting.vue';
 import LivingDownload from '@/render/views/LivingDownload.vue';
 import LivingRoomInfo from '@/render/views/LivingRoomInfo.vue';
+import Test from '@/render/views/Test.vue';
 
 const routes = [
   {
@@ -24,6 +25,11 @@ const routes = [
         path: 'setting',
         name: 'setting',
         component: Setting,
+      },
+      {
+        path: 'test',
+        name: 'test',
+        component: Test,
       },
     ],
   },

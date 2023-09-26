@@ -44,3 +44,6 @@ export const setWorkspace = async (path) => {
 export const searchRoomInfos = async (opt) => {
     return await ipcRenderer.invoke(HandleEvents.SEARCH_ROOM_INFOS, opt);
 }
+export const anysisRoomInfo = async (link) => {
+  return await ipcRenderer.invoke(HandleEvents.ANYSIS_ROOM_INFO, link);
+};

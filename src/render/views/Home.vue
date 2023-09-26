@@ -17,6 +17,10 @@
               <el-icon><Setting /></el-icon>
               <span>设置</span>
             </el-menu-item>
+            <el-menu-item index="/test">
+              <el-icon><Setting /></el-icon>
+              <span>测试</span>
+            </el-menu-item>
           </el-menu>
         </el-aside>
         <el-main><router-view></router-view></el-main>
