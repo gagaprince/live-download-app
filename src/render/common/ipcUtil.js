@@ -41,3 +41,6 @@ export const setWorkspace = async (path) => await ipcRenderer.invoke(HandleEvent
 export const searchRoomInfos = async (opt) => await ipcRenderer.invoke(HandleEvents.SEARCH_ROOM_INFOS, opt);
 export const anysisRoomInfo = async (link) => await ipcRenderer.invoke(HandleEvents.ANYSIS_ROOM_INFO, link);
 export const addRoom = async (roomInfo) => await ipcRenderer.invoke(HandleEvents.ADD_ROOM, roomInfo);
+export const openLink = async (link) => await ipcRenderer.invoke(HandleEvents.OPEN_LINK_EXPORT, link);
+export const deleteRoom = async (webRoomId) => await ipcRenderer.invoke(HandleEvents.DELETE_ROOM, webRoomId);
+export const addDownloadTask = async (webRoomId) => await ipcRenderer.invoke(HandleEvents.ADD_DOWNLOAD_TASK, webRoomId);

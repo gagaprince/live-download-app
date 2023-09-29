@@ -59,9 +59,13 @@ export const anysisFromLink = async (link) => {
 
 
 export const addRoom = (roomInfo) => {
+    if (!roomInfo || !roomInfo.roomId) {
+        return false;
+    }
     const roomInfos = getRoomInfos();
     // 此处需要查询当前房间信息中是否已经存在要存入的房间
-    const roomIn = roomInfos.find((item) => item.roomId === roomInfo.roomId);
+    const roomIn = roomInfos.find((item) => item.webRoomId === roomInfo.webRoomId);
+    console.log('roomin:', roomIn);
     if (roomIn) {
         Object.assign(roomIn, roomInfo);
     } else {
@@ -71,5 +75,22 @@ export const addRoom = (roomInfo) => {
     return true;
 };
 
+export const deleteRoom = (webRoomId) => {
+    if (!webRoomId) {
+        return false;
+    }
+    const roomInfos = getRoomInfos();
+
+    for (let i = roomInfos.length - 1; i >= 0; i--) {
+        if (roomInfos[i].webRoomId === webRoomId) {
+            roomInfos.splice(i, 1);
+        }
+    }
+
+    saveRoomInfos(roomInfos);
+    return true;
+};
+
 registHandle(HandleEvents.ADD_ROOM, addRoom);
 registHandle(HandleEvents.ANYSIS_ROOM_INFO, anysisFromLink);
+registHandle(HandleEvents.DELETE_ROOM, deleteRoom);
