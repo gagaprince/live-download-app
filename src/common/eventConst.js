@@ -12,4 +12,8 @@ export const HandleEvents = {
     OPEN_LINK_EXPORT: 'open_url',
     DELETE_ROOM: 'delete_room',
     ADD_DOWNLOAD_TASK: 'add_download_task',
+    SELECT_DIR: 'select_dir',
+    OPEN_DIR: 'open_dir',
+    GET_DOWNLOADING_TASKLIST: 'get_downloading_tasklist',
+    STOP_DOWNLOADING_TASK: 'stop_downloading_task',
 };

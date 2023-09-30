@@ -21,8 +21,8 @@ export const anysisFromLink = async (link) => {
     console.log('要分析的链接： ', link);
     let ret;
     try {
-        // ret = await axios.post('https://vd.gagaprince.top/smallvideo/douyinLive', {
-        ret = await axios.post('http://localhost:3000/smallvideo/douyinLive', {
+        ret = await axios.post('https://vd.gagaprince.top/smallvideo/douyinLive', {
+        // ret = await axios.post('http://localhost:3000/smallvideo/douyinLive', {
             url: link,
         });
 

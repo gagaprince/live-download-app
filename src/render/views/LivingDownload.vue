@@ -9,7 +9,7 @@
       label="正在下载"
       name="downloading"
     >
-      正在下载
+      <Downloading />
     </el-tab-pane>
     <el-tab-pane
       label="已完成"
@@ -18,7 +18,7 @@
       已完成
     </el-tab-pane>
     <el-tab-pane
-      label="任务管理"
+      label="监听开播"
       name="taskManage"
     >
       监听开播任务管理
@@ -27,7 +27,12 @@
 </template>
 
 <script>
+import Downloading from '@/render/components/download/downloading';
+
 export default {
+    components: {
+        Downloading,
+    },
     data() {
         return {
             activeName: 'downloading',

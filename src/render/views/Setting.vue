@@ -1,12 +1,5 @@
 <template>
   <div>
-    <input
-      ref="directoryInput"
-      style="display:none;"
-      type="file"
-      webkitdirectory
-      @change="handleDirectoryChange"
-    >
     <el-text> 设置 </el-text>
     <el-row class="workspace-setting">
       <el-col
@@ -49,7 +42,7 @@
   </div>
 </template>
 <script>
-import { getWorkspace, setWorkspace } from '@/render/common/ipcUtil';
+import { getWorkspace, setWorkspace, selectDirectory } from '@/render/common/ipcUtil';
 
 export default {
     data() {
@@ -66,14 +59,14 @@ export default {
             const workspace = await getWorkspace();
             this.workspace = workspace;
         },
-        selectFolder() {
-            this.$refs.directoryInput.click();
-        },
-        handleDirectoryChange(event) {
-            const { files } = event.target;
-            if (files.length > 0) {
-                const file = files[0];
-                this.workspace = file.path.replace(file.name, '');
+        async selectFolder() {
+            const ret = await selectDirectory();
+            console.log(ret);
+            if (ret && !ret.canceled) {
+                const path = ret.filePaths[0];
+                if (path) {
+                    this.workspace = path;
+                }
             }
         },
         saveConfig() {

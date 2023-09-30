@@ -44,3 +44,8 @@ export const addRoom = async (roomInfo) => await ipcRenderer.invoke(HandleEvents
 export const openLink = async (link) => await ipcRenderer.invoke(HandleEvents.OPEN_LINK_EXPORT, link);
 export const deleteRoom = async (webRoomId) => await ipcRenderer.invoke(HandleEvents.DELETE_ROOM, webRoomId);
 export const addDownloadTask = async (webRoomId) => await ipcRenderer.invoke(HandleEvents.ADD_DOWNLOAD_TASK, webRoomId);
+export const selectDirectory = async () => await ipcRenderer.invoke(HandleEvents.SELECT_DIR);
+export const openDirectory = async (dir) => await ipcRenderer.invoke(HandleEvents.OPEN_DIR, dir);
+
+export const getDownloadTaskList = async () => await ipcRenderer.invoke(HandleEvents.GET_DOWNLOADING_TASKLIST);
+export const stopDownloadTask = async (webRoomId) => await ipcRenderer.invoke(HandleEvents.STOP_DOWNLOADING_TASK, webRoomId);

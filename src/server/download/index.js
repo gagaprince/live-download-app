@@ -1,4 +1,4 @@
-import { addDownloadTask } from './downloadTaskManager';
+import { addDownloadTask, getDownloadTaskList, stopDownloadTask } from './downloadTaskManager';
 import { selectRoomById } from '../room/selectRoom';
 
 import { registHandle } from '../ipc';
@@ -12,3 +12,5 @@ export const addDownloadTaskByWebRoomId = (webRoomId) => {
 };
 
 registHandle(HandleEvents.ADD_DOWNLOAD_TASK, addDownloadTaskByWebRoomId);
+registHandle(HandleEvents.GET_DOWNLOADING_TASKLIST, getDownloadTaskList);
+registHandle(HandleEvents.STOP_DOWNLOADING_TASK, stopDownloadTask);

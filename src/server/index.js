@@ -4,3 +4,4 @@ export * from './room/selectRoom';
 export * from './room/addRoom';
 export * from './link/openLink';
 export * from './download/index';
+export * from './selectDirOrFile/index';

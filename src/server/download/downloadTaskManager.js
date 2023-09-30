@@ -10,9 +10,9 @@ export const addDownloadTask = (roomInfo = {}) => {
     if (_isDownloading(roomInfo.webRoomId)) return;
     const task = new DownloadTask(roomInfo);
     try {
-        task.onProgress((size) => {
-            console.log('文件大小:', size);
-        });
+        // task.onProgress((size) => {
+        //     console.log('文件大小:', size);
+        // });
         task.onFinished(() => {
             downloadTaskMap[roomInfo.webRoomId] = undefined;
         });
@@ -24,8 +24,12 @@ export const addDownloadTask = (roomInfo = {}) => {
     }
 };
 
-export const stopDownloadTask = () => {};
+export const stopDownloadTask = (webRoomId) => {
+    const task = downloadTaskMap[webRoomId];
+    if (task) task.destroy();
+};
 
 export const getDownloadTaskList = () => {
-
+    const taskList = Object.keys(downloadTaskMap).map((key) => downloadTaskMap[key] && downloadTaskMap[key].toJSONObject());
+    return taskList.filter((task) => !!task && !task.isDone);
 };

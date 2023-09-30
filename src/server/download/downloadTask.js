@@ -1,10 +1,10 @@
 
 import { getWorkSpace } from '../configUtil';
 import { formatDate } from '../util/date';
+import { Download } from './download';
 
 const fs = require('fs');
 const path = require('path');
-const { Worker } = require('worker_threads');
 
 /**
  * 单个下载任务的类
@@ -23,6 +23,7 @@ export class DownloadTask {
         this.finishListeners = [];
         this.downloadWorker = null;
         this.status = 'normal';
+        this.size = 0;
 
         const workspace = getWorkSpace();
         this.roomInfo = roomInfo;
@@ -30,7 +31,20 @@ export class DownloadTask {
         this.canDownload = !!this.flvLink;
         this.fileDir = path.resolve(workspace, roomInfo.owner, formatDate());
         this.filePath = path.resolve(this.fileDir, `${Date.now()}.flv`);
+        this.beginTime = Date.now();
     }
+
+    toJSONObject() {
+        return {
+            isDone: this.isDone,
+            size: this.size,
+            roomInfo: this.roomInfo,
+            fileDir: this.fileDir,
+            beginTime: this.beginTime,
+        };
+    }
+
+    getBeginTime() { return this.beginTime; }
 
     startTimer() {
         this.timer = setInterval(() => {
@@ -38,6 +52,7 @@ export class DownloadTask {
             try {
                 const stat = fs.statSync(this.filePath);
                 const size = stat.size;
+                this.size = size;
                 this.changeListeners.forEach((callback) => callback(size));
             } catch (e) {
                 console.error(e);
@@ -48,6 +63,7 @@ export class DownloadTask {
     stopTimer() {
         if (this.timer) {
             clearInterval(this.timer);
+            this.timer = null;
         }
     }
 
@@ -64,29 +80,21 @@ export class DownloadTask {
             if (!fs.existsSync(this.fileDir)) {
                 fs.mkdirSync(this.fileDir, { recursive: true }); // recursive选项确保创建嵌套目录
             }
-            const workerPath = path.join(__dirname, 'download.js');
-            console.log('workerPath', workerPath);
-            const downloadWorker = new Worker(workerPath);
-            this.downloadWorker = downloadWorker;
-
-            this.startTimer();
-            downloadWorker.on('message', (message) => {
-                if (message.type === 'status') {
-                    console.log(`Download status: ${message.status}`);
-                    if (message.error) {
-                        console.log(`Error: ${message.error}`);
-                    }
-                    this.stopTimer();
-                    this.isDone = true;
-                    this.destroy();
-                }
-            });
-
-            downloadWorker.postMessage({
-                type: 'download',
+            const downloader = new Download({
                 url: this.flvLink,
                 filePath: this.filePath,
+                success: () => {
+                    this.isDone = true;
+                    this.destroy();
+                },
+                fail: (e) => {
+                    console.log(`Error: ${e}`);
+                    this.destroy();
+                },
             });
+            this.downloader = downloader;
+            this.downloader.startDownload();
+            this.startTimer();
         } else {
             this.destroy();
             throw new Error('当前任务不可下载');
@@ -94,11 +102,12 @@ export class DownloadTask {
     }
 
     destroy() {
+        if (this.status === 'destroy') return;
         this.status = 'destroy';
-        if (this.downloadWorker) {
-            this.downloadWorker.postMessage({
-                type: 'destroy',
-            });
+        this.isDone = true;
+        this.stopTimer();
+        if (this.downloader) {
+            this.downloader.stopDownload();
         }
         this.finishListeners.forEach((fun) => fun());
     }

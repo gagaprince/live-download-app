@@ -41,12 +41,6 @@
         style="width: 100%"
       >
         <el-table-column
-          sortable
-          prop="webRoomId"
-          label="房间号"
-          width="180"
-        />
-        <el-table-column
           label="头像"
           width="100"
         >
@@ -58,6 +52,13 @@
             >
           </template>
         </el-table-column>
+        <el-table-column
+          sortable
+          prop="webRoomId"
+          label="房间号"
+          width="180"
+        />
+
         <el-table-column
           prop="owner"
           label="房主"
