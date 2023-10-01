@@ -49,3 +49,6 @@ export const openDirectory = async (dir) => await ipcRenderer.invoke(HandleEvent
 
 export const getDownloadTaskList = async () => await ipcRenderer.invoke(HandleEvents.GET_DOWNLOADING_TASKLIST);
 export const stopDownloadTask = async (webRoomId) => await ipcRenderer.invoke(HandleEvents.STOP_DOWNLOADING_TASK, webRoomId);
+
+export const getSaveFileList = async () => await ipcRenderer.invoke(HandleEvents.GET_SAVE_FILE_LIST);
+export const reCheckFileList = async () => await ipcRenderer.invoke(HandleEvents.RECHECK_SAVE_FILE_LIST);

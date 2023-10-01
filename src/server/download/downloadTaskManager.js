@@ -1,4 +1,5 @@
 import { DownloadTask } from './downloadTask';
+import { addFile } from './saveFile';
 
 
 // const downloadTaskList = [];
@@ -15,13 +16,21 @@ export const addDownloadTask = (roomInfo = {}) => {
         // });
         task.onFinished(() => {
             downloadTaskMap[roomInfo.webRoomId] = undefined;
+            addFile(task.toJSONObject());
         });
         task.exec();
         downloadTaskMap[roomInfo.webRoomId] = task;
+        setTimeout(() => {
+            addFile(task.toJSONObject());
+        }, 10000);
     } catch (e) {
         // 没有下载信息
         console.log(e);
     }
+};
+
+export const saveAllDownloadFile = () => {
+    Object.keys(downloadTaskMap).forEach((key) => addFile(downloadTaskMap[key].toJSONObject()));
 };
 
 export const stopDownloadTask = (webRoomId) => {

@@ -16,4 +16,6 @@ export const HandleEvents = {
     OPEN_DIR: 'open_dir',
     GET_DOWNLOADING_TASKLIST: 'get_downloading_tasklist',
     STOP_DOWNLOADING_TASK: 'stop_downloading_task',
+    GET_SAVE_FILE_LIST: 'get_save_file_list',
+    RECHECK_SAVE_FILE_LIST: 'recheck_save_file_list',
 };

@@ -11,6 +11,7 @@ const getDocPath = () => app.getPath('documents');
 const getAppConfigPath = () => path.resolve(getUserPath(), 'liveDownload');
 const getDefaultWorkspacePath = () => path.resolve(getDocPath(), 'liveDownload');
 const getUserConfigFile = () => path.resolve(getAppConfigPath(), 'config.json');
+export const getUserSaveFileConfig = () => path.resolve(getAppConfigPath(), 'saveFileConfig.json');
 
 let AppConfig = {
     workspace: getDefaultWorkspacePath(),

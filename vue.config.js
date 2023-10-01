@@ -13,6 +13,12 @@ module.exports = defineConfig({
     pluginOptions: {
         electronBuilder: {
             preload: 'src/preload.js',
+            builderOptions: {
+                appId: 'com.prince.livedownloadapp',
+                win: {
+                    target: 'nsis',
+                },
+            },
         },
     },
 });

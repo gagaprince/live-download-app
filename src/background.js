@@ -1,6 +1,6 @@
 
 import {
-    app, protocol, BrowserWindow, screen,
+    app, protocol, BrowserWindow, screen, globalShortcut,
 } from 'electron';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer';
@@ -38,6 +38,13 @@ async function createWindow() {
         // Load the index.html when not in development
         win.loadURL('app://./index.html');
     }
+
+    globalShortcut.register('CommandOrControl+Shift+I', () => {
+        const winSelect = BrowserWindow.getFocusedWindow();
+        if (winSelect) {
+            winSelect.webContents.openDevTools();
+        }
+    });
 }
 
 // Quit when all windows are closed.
@@ -69,6 +76,13 @@ app.on('ready', async () => {
     }
     createWindow();
 });
+
+// app.on('before-quit', (event) => {
+//     event.preventDefault();
+//     console.log('before-quit');
+    
+//     app.quit();
+// });
 
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {

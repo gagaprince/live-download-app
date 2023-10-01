@@ -12,10 +12,10 @@
       <Downloading />
     </el-tab-pane>
     <el-tab-pane
-      label="已完成"
+      label="已保存"
       name="finish"
     >
-      已完成
+      <SaveFileInfo />
     </el-tab-pane>
     <el-tab-pane
       label="监听开播"
@@ -27,11 +27,13 @@
 </template>
 
 <script>
-import Downloading from '@/render/components/download/downloading';
+import Downloading from '@/render/components/download/downloading.vue';
+import SaveFileInfo from '@/render/components/download/saveFileInfo.vue';
 
 export default {
     components: {
         Downloading,
+        SaveFileInfo,
     },
     data() {
         return {

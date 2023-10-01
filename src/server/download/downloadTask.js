@@ -40,6 +40,7 @@ export class DownloadTask {
             size: this.size,
             roomInfo: this.roomInfo,
             fileDir: this.fileDir,
+            filePath: this.filePath,
             beginTime: this.beginTime,
         };
     }
