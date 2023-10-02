@@ -29,7 +29,7 @@ class ObserverTask {
      * @param {房间信息} roomInfo
      * @param {间隔检测时间} timeout
      */
-    constructor(roomInfo, timeout = 60) {
+    constructor(roomInfo, timeout = 300) {
         this.roomInfo = roomInfo;
         this.timeout = timeout;
         this.lastTime = 0;
