@@ -21,7 +21,7 @@
       label="监听开播"
       name="taskManage"
     >
-      监听开播任务管理
+      <ObservDownload />
     </el-tab-pane>
   </el-tabs>
 </template>
@@ -29,11 +29,13 @@
 <script>
 import Downloading from '@/render/components/download/downloading.vue';
 import SaveFileInfo from '@/render/components/download/saveFileInfo.vue';
+import ObservDownload from '@/render/components/download/ObserveDownload.vue';
 
 export default {
     components: {
         Downloading,
         SaveFileInfo,
+        ObservDownload,
     },
     data() {
         return {

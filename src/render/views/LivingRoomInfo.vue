@@ -86,7 +86,7 @@
         <el-table-column
           fixed="right"
           label="操作"
-          width="200"
+          width="240"
         >
           <template #default="scope">
             <el-button
@@ -114,6 +114,15 @@
             >
               下载
             </el-button>
+            <el-button
+              link
+              type="primary"
+              size="small"
+              @click="addOpenLiveListener(scope.row)"
+            >
+              监听
+            </el-button>
+
             <el-button
               link
               type="primary"
@@ -169,7 +178,7 @@
 </template>
 <script>
 import {
-    searchRoomInfos, anysisRoomInfo, addRoom, openLink, deleteRoom, addDownloadTask,
+    searchRoomInfos, anysisRoomInfo, addRoom, openLink, deleteRoom, addDownloadTask, addObserverDownload,
 } from '@/render/common/ipcUtil';
 import TaskListComponent from '@/render/components/tasklist/index';
 
@@ -305,6 +314,10 @@ export default {
         },
         async addDownloadTask(roomInfo) {
             addDownloadTask(roomInfo.webRoomId);
+        },
+        async addOpenLiveListener(roomInfo) {
+            console.log('addOpenLiveListener:', roomInfo.webRoomId);
+            await addObserverDownload(roomInfo.webRoomId);
         },
 
     },

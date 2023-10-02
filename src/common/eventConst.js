@@ -18,4 +18,7 @@ export const HandleEvents = {
     STOP_DOWNLOADING_TASK: 'stop_downloading_task',
     GET_SAVE_FILE_LIST: 'get_save_file_list',
     RECHECK_SAVE_FILE_LIST: 'recheck_save_file_list',
+    ADD_OBSERVER_DOWNLOAD_TASK: 'add_observer_download_task',
+    REMOVE_OBSERVER_DOWNLOAD_TASK: 'remove_observer_download_task',
+    GET_OBSERVER_DOWNLOAD_TASK: 'get_observer_download_task',
 };

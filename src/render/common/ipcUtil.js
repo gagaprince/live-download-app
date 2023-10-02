@@ -52,3 +52,7 @@ export const stopDownloadTask = async (webRoomId) => await ipcRenderer.invoke(Ha
 
 export const getSaveFileList = async () => await ipcRenderer.invoke(HandleEvents.GET_SAVE_FILE_LIST);
 export const reCheckFileList = async () => await ipcRenderer.invoke(HandleEvents.RECHECK_SAVE_FILE_LIST);
+
+export const addObserverDownload = async (webRoomId) => await ipcRenderer.invoke(HandleEvents.ADD_OBSERVER_DOWNLOAD_TASK, webRoomId);
+export const removeObserverDownload = async (webRoomId) => await ipcRenderer.invoke(HandleEvents.REMOVE_OBSERVER_DOWNLOAD_TASK, webRoomId);
+export const getAllObserverDownloadTask = async () => await ipcRenderer.invoke(HandleEvents.GET_OBSERVER_DOWNLOAD_TASK);

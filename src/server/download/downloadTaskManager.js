@@ -5,10 +5,10 @@ import { addFile } from './saveFile';
 // const downloadTaskList = [];
 const downloadTaskMap = {};
 
-const _isDownloading = (webRoomId) => !!downloadTaskMap[webRoomId];
+export const isDownloading = (webRoomId) => !!downloadTaskMap[webRoomId];
 
 export const addDownloadTask = (roomInfo = {}) => {
-    if (_isDownloading(roomInfo.webRoomId)) return;
+    if (isDownloading(roomInfo.webRoomId)) return;
     const task = new DownloadTask(roomInfo);
     try {
         // task.onProgress((size) => {
