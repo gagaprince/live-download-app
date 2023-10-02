@@ -82,7 +82,12 @@ export const addObserverRoom = (webRoomId) => {
         throw new Error('监听数已经到最大，请清理一下再添加');
     }
     const roomInfo = selectRoomById(webRoomId);
-    observeList.push(new ObserverTask(roomInfo));
+    const ret = observeList.find((task) => task.roomInfo.webRoomId === webRoomId);
+    if (!ret) {
+        observeList.push(new ObserverTask(roomInfo));
+    } else {
+        console.log('重复了 不要重复监听');
+    }
 };
 
 export const removeObserverRoom = (webRoomId) => {
