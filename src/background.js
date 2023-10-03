@@ -25,6 +25,7 @@ async function createWindow() {
             preload: path.join(__dirname, 'preload.js'),
             nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
             contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
+            webviewTag: true,
         },
     });
     initIpc();
@@ -80,7 +81,7 @@ app.on('ready', async () => {
 // app.on('before-quit', (event) => {
 //     event.preventDefault();
 //     console.log('before-quit');
-    
+
 //     app.quit();
 // });
 

@@ -10,7 +10,7 @@
   <div style="margin-top:30px;">
     <el-table
       :data="roomInfos"
-      style="width: 100%"
+      style="width: 100%;height:600px;"
     >
       <el-table-column
         label="头像"

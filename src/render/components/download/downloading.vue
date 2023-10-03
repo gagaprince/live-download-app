@@ -20,7 +20,7 @@
   <div class="downloading-table">
     <el-table
       :data="downloadTasks"
-      style="width: 100%"
+      style="width: 100%;height:600px;"
     >
       <el-table-column
         label="头像"
@@ -99,7 +99,9 @@
   </div>
 </template>
 <script>
-import { getDownloadTaskList, stopDownloadTask, openDirectory } from '@/render/common/ipcUtil';
+import {
+    getDownloadTaskList, stopDownloadTask, openDirectory, anysisRoomInfo, addRoom, addDownloadTask,
+} from '@/render/common/ipcUtil';
 import { formatMilliseconds } from '@/render/common/lib/date';
 
 export default {
@@ -159,8 +161,38 @@ export default {
         showAddDownload() {
             this.addDownloadModalFlag = true;
         },
-        submitAddForm() {
-
+        async submitAddForm() {
+            try {
+                // 提交增加room
+                console.log('分析room信息:', this.addDownloadObj);
+                const roomInfo = await anysisRoomInfo(this.addDownloadObj.link);
+                console.log('获取的roomInfo:', roomInfo);
+                if (roomInfo && roomInfo.roomId) {
+                    // 添加roomInfo
+                    const saveFlag = await addRoom(roomInfo);
+                    if (saveFlag) {
+                        this.$message({
+                            message: '添加成功',
+                            type: 'success',
+                        });
+                        this.closeAddDownloadDialog();
+                        this.addDownloadObj.link = '';
+                        await addDownloadTask(roomInfo.webRoomId);
+                        this.refreshDownload();
+                    }
+                } else {
+                    this.$message({
+                        message: '添加失败,获取房间信息失败',
+                        type: 'error',
+                    });
+                }
+            } catch (e) {
+                console.error(e);
+                this.$message({
+                    message: '添加失败',
+                    type: 'error',
+                });
+            }
         },
         closeAddDownloadDialog() {
             this.addDownloadModalFlag = false;
