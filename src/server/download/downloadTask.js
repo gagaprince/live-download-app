@@ -1,6 +1,6 @@
 
 import { getWorkSpace } from '../configUtil';
-import { formatDate } from '../util/date';
+import { formatDate, formatDay } from '../util/date';
 import { Download } from './download';
 
 const fs = require('fs');
@@ -29,7 +29,7 @@ export class DownloadTask {
         this.roomInfo = roomInfo;
         this.flvLink = roomInfo.flvLink || '';
         this.canDownload = !!this.flvLink;
-        this.fileDir = path.resolve(workspace, roomInfo.owner, formatDate());
+        this.fileDir = path.resolve(workspace, formatDay(), roomInfo.owner, formatDate());
         this.filePath = path.resolve(this.fileDir, `${Date.now()}.flv`);
         this.beginTime = Date.now();
     }

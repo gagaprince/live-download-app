@@ -19,6 +19,21 @@ export const formatDate = () => {
     return formattedDate;
 };
 
+export const formatDay = () => {
+    const date = new Date(); // 获取当前日期和时间
+
+    const year = date.getFullYear(); // 获取年份
+    let month = date.getMonth() + 1; // 获取月份，注意月份是从0开始的，所以需要+1
+    let day = date.getDate(); // 获取日期
+
+    // 如果月份、日期、小时、分钟和秒小于10，前面补0
+    month = month < 10 ? `0${month}` : month;
+    day = day < 10 ? `0${day}` : day;
+
+    const formattedDate = `${year}-${month}-${day}`; // 格式化日期和时间
+    return formattedDate;
+};
+
 export const formatMilliseconds = (milliseconds) => {
     const totalSeconds = Math.floor(milliseconds / 1000);
     const totalMinutes = Math.floor(totalSeconds / 60);
