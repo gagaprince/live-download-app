@@ -4882,6 +4882,11 @@ elliptic@^6.5.3:
     minimalistic-assert "^1.0.1"
     minimalistic-crypto-utils "^1.0.1"
 
+emoji-regex@^10.3.0:
+  version "10.3.0"
+  resolved "http://r.npm.sankuai.com/emoji-regex/download/emoji-regex-10.3.0.tgz#76998b9268409eb3dae3de989254d456e70cfe23"
+  integrity sha1-dpmLkmhAnrPa496YklTUVucM/iM=
+
 emoji-regex@^7.0.1:
   version "7.0.3"
   resolved "http://r.npm.sankuai.com/emoji-regex/download/emoji-regex-7.0.3.tgz#933a04052860c85e83c122479c4748a8e4c72156"

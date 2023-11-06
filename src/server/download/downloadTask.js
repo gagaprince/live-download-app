@@ -1,7 +1,8 @@
-
+import emojiRegex from 'emoji-regex';
 import { getWorkSpace } from '../configUtil';
 import { formatDate, formatDay } from '../util/date';
 import { Download } from './download';
+
 
 const fs = require('fs');
 const path = require('path');
@@ -17,6 +18,8 @@ const path = require('path');
 
 export class DownloadTask {
     constructor(roomInfo) {
+        console.log(emojiRegex);
+        const regex = emojiRegex();
         this.timer = null;
         this.isDone = false;
         this.changeListeners = [];
@@ -29,7 +32,8 @@ export class DownloadTask {
         this.roomInfo = roomInfo;
         this.flvLink = roomInfo.flvLink || '';
         this.canDownload = !!this.flvLink;
-        this.fileDir = path.resolve(workspace, formatDay(), roomInfo.owner, formatDate());
+        const ownerTmp = roomInfo.owner.replace(regex, '');
+        this.fileDir = path.resolve(workspace, formatDay(), ownerTmp, formatDate());
         this.filePath = path.resolve(this.fileDir, `${Date.now()}.flv`);
         this.beginTime = Date.now();
     }
