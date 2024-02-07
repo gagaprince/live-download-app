@@ -147,7 +147,7 @@
           <el-form-item style="justify-content:center;">
             <el-button
               type="primary"
-              @click="submitAddForm"
+              @click="aynsisLiveLinkAndSubmit"
             >
               提交
             </el-button>
@@ -174,6 +174,13 @@
         </div>
       </el-dialog>
     </div>
+    <div style="position: absolute; top:-10000px;">
+      <webview
+        ref="webviewRef"
+        :src="webviewsrc"
+        class="webview"
+      />
+    </div>
   </div>
 </template>
 <script>
@@ -199,6 +206,7 @@ export default {
             addRoomModalFlag: false,
             batchCheckFlag: false,
             batchTasks: [],
+            webviewsrc: '',
         };
     },
     mounted() {
@@ -211,17 +219,46 @@ export default {
         async search() {
             console.log('search');
             console.log('searchObj:', this.formObj);
-            this.roomInfos = await searchRoomInfos();
+            this.roomInfos = await searchRoomInfos({ ...this.formObj });
         },
         showAddRoomModal() {
             // 添加房间的弹窗
             this.addRoomModalFlag = true;
         },
-        async submitAddForm() {
+        async aynsisLiveLinkAndSubmit() {
+            console.log('分析room信息:', this.addRoomObj);
+            const originLink = this.addRoomObj.link;
+            if (this._checkLink(originLink)) {
+                this.submitAddForm(originLink);
+                return;
+            }
+            this.webviewsrc = originLink;
+            setTimeout(() => {
+                this.parseLiveLink();
+            }, 3000);
+        },
+        _checkLink(link) {
+            const pattern = /^https:\/\/live\.douyin\.com\/\d+$/;
+            return pattern.test(link);
+        },
+        parseLiveLink() {
+            const webview = this.$refs.webviewRef;
+            webview.executeJavaScript('window.location.href').then(async (ret) => {
+                console.log('currentLink:', ret);
+                if (this._checkLink(ret)) {
+                    this.submitAddForm(ret);
+                } else {
+                    this.$message({
+                        message: '解析失败请重试',
+                        type: 'error',
+                    });
+                }
+            });
+        },
+        async submitAddForm(link) {
             try {
                 // 提交增加room
-                console.log('分析room信息:', this.addRoomObj);
-                const roomInfo = await anysisRoomInfo(this.addRoomObj.link);
+                const roomInfo = await anysisRoomInfo(link);
                 console.log('获取的roomInfo:', roomInfo);
                 if (roomInfo && roomInfo.roomId) {
                     // 添加roomInfo
@@ -343,5 +380,10 @@ export default {
 }
 .online{
   color: green;
+}
+.webview{
+  margin-top: 30px;
+  width:100%;
+  height:1px;
 }
 </style>

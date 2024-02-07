@@ -8,12 +8,23 @@ export const selectRoomById = (webRoomId) => {
 };
 
 export const selectRoomInfo = (formOptions) => {
-    const roomInfoList = getRoomInfos();
-    const retList = roomInfoList.filter((roomInfo) => !!roomInfo.roomId);
+    const roomInfoList = getRoomInfos() || [];
+    let retList = roomInfoList.filter((roomInfo) => !!roomInfo.roomId).reverse();
     console.log('selectRoomInfo:', roomInfoList);
-    if (formOptions) {
+    console.log('formOptions:', formOptions);
+    if (formOptions && (formOptions.roomId || formOptions.owner)) {
     // 有查询项 对数据做过滤
-        // retList = roomInfoList.filter((roomInfo) => !roomInfo.roomId);
+        retList = roomInfoList.filter((roomInfo) => {
+            let roomIdMatch = false;
+            let ownerMatch = false;
+            if (formOptions.roomId) {
+                roomIdMatch = (`${roomInfo.webRoomId}`).startsWith(formOptions.roomId);
+            }
+            if (formOptions.owner) {
+                ownerMatch = (`${roomInfo.owner}`).indexOf(formOptions.owner) !== -1;
+            }
+            return roomIdMatch || ownerMatch;
+        });
     }
     return retList;
 };

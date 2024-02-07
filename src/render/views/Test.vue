@@ -30,13 +30,12 @@
     />
   </el-table>
 
-  <el-button @click="handleDownload">
+  <!-- <el-button @click="handleDownload">
     测试下载
-  </el-button>
+  </el-button> -->
 
 
-  <div>
-    测试 webview
+  <div style="margin-top: 20px;">
     <el-row :gutter="20">
       <el-col :span="12">
         <el-input
@@ -60,7 +59,10 @@
       </el-col>
     </el-row>
     <el-row :gutter="20">
-      <el-col :span="24">
+      <el-col
+        :span="24"
+        style="position: absolute; top:-10000px;"
+      >
         <webview
           ref="webviewRef"
           :src="webviewsrc"
@@ -71,7 +73,7 @@
   </div>
 </template>
 <script>
-import { anysisRoomInfo } from '@/render/common/ipcUtil';
+import { anysisRoomInfo, addRoom } from '@/render/common/ipcUtil';
 
 export default {
     data() {
@@ -95,11 +97,31 @@ export default {
         openWebview() {
             console.log('打开webview：', this.webviewLink);
             this.webviewsrc = this.webviewLink;
+            setTimeout(() => {
+                this.parseLiveLink();
+            }, 5000);
         },
         parseLiveLink() {
             const webview = this.$refs.webviewRef;
-            webview.executeJavaScript('window.location.href').then((ret) => {
+            webview.executeJavaScript('window.location.href').then(async (ret) => {
                 console.log('currentLink:', ret);
+                const roomInfo = await anysisRoomInfo(ret);
+                console.log('获取的roomInfo:', roomInfo);
+                if (roomInfo && roomInfo.roomId) {
+                    // 添加roomInfo
+                    const saveFlag = await addRoom(roomInfo);
+                    if (saveFlag) {
+                        this.$message({
+                            message: '添加成功',
+                            type: 'success',
+                        });
+                    }
+                } else {
+                    this.$message({
+                        message: '添加失败,获取房间信息失败',
+                        type: 'error',
+                    });
+                }
             });
         },
     },
@@ -109,6 +131,6 @@ export default {
 .webview{
   margin-top: 30px;
   width:100%;
-  height:500px;
+  height:1px;
 }
 </style>
