@@ -225,9 +225,23 @@ export default {
             // 添加房间的弹窗
             this.addRoomModalFlag = true;
         },
+        _getRealLink(content) {
+            const contentReg = new RegExp(/.*?([a-zA-z]+:\/\/[^\s]*)\s{0,}.*?/g);
+            const ret = contentReg.exec(content);
+            if (ret && ret.length > 1) {
+                return ret[1];
+            }
+            return '';
+        },
         async aynsisLiveLinkAndSubmit() {
             console.log('分析room信息:', this.addRoomObj);
-            const originLink = this.addRoomObj.link;
+            const originLink = this._getRealLink(this.addRoomObj.link);
+            if (!originLink) {
+                this.$message({
+                    message: '链接有误，请检查后重试',
+                    type: 'error',
+                });
+            }
             if (this._checkLink(originLink)) {
                 this.submitAddForm(originLink);
                 return;

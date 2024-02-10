@@ -32,7 +32,7 @@ export class DownloadTask {
         this.roomInfo = roomInfo;
         this.flvLink = roomInfo.flvLink || '';
         this.canDownload = !!this.flvLink;
-        const ownerTmp = roomInfo.owner.replace(regex, '');
+        const ownerTmp = roomInfo.owner.replace(regex, '').replace(/\./g, '_');
         this.fileDir = path.resolve(workspace, formatDay(), ownerTmp, formatDate());
         this.filePath = path.resolve(this.fileDir, `${Date.now()}.flv`);
         this.beginTime = Date.now();
