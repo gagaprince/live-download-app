@@ -56,3 +56,6 @@ export const reCheckFileList = async () => await ipcRenderer.invoke(HandleEvents
 export const addObserverDownload = async (webRoomId) => await ipcRenderer.invoke(HandleEvents.ADD_OBSERVER_DOWNLOAD_TASK, webRoomId);
 export const removeObserverDownload = async (webRoomId) => await ipcRenderer.invoke(HandleEvents.REMOVE_OBSERVER_DOWNLOAD_TASK, webRoomId);
 export const getAllObserverDownloadTask = async () => await ipcRenderer.invoke(HandleEvents.GET_OBSERVER_DOWNLOAD_TASK);
+export const getttwid = async () => await ipcRenderer.invoke(HandleEvents.GET_TTWID);
+export const getRealLink = async (origin) => await ipcRenderer.invoke(HandleEvents.GET_REALLINK, origin);
+export const anysisRoomInfoFromLink = async (origin) => await ipcRenderer.invoke(HandleEvents.ANYSIS_ROOM_INFO_FROM_CENTER, origin);

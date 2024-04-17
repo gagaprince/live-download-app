@@ -21,4 +21,11 @@ export const HandleEvents = {
     ADD_OBSERVER_DOWNLOAD_TASK: 'add_observer_download_task',
     REMOVE_OBSERVER_DOWNLOAD_TASK: 'remove_observer_download_task',
     GET_OBSERVER_DOWNLOAD_TASK: 'get_observer_download_task',
+    GET_TTWID: 'get_ttwid',
+    GET_REALLINK: 'get_real_link',
+    ANYSIS_ROOM_INFO_FROM_CENTER: 'anysis_room_info_from_center',
+};
+
+export const RenderReceiveEvents = {
+    SIGN: 'get_xbogus',
 };

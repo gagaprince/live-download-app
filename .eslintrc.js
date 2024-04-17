@@ -42,6 +42,7 @@ module.exports = {
         'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
         // 禁止使用console
         'no-console': 'off',
+        'no-eval': 'off',
         // 类的实例方法可以不用this
         'class-methods-use-this': 'off',
         // 考虑到 语义性 和 可扩展行 方面，允许 if 作为唯一语句出现在 else 代码块中

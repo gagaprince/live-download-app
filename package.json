@@ -20,6 +20,7 @@
     "core-js": "^3.8.3",
     "element-plus": "^2.3.12",
     "emoji-regex": "^10.3.0",
+    "got": "11",
     "vue": "^3.2.13",
     "vue-router": "^4.0.13"
   },

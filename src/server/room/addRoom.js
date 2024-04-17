@@ -2,6 +2,9 @@ import axios from 'axios';
 import { getRoomInfos, saveRoomInfos } from '../configUtil';
 import { registHandle } from '../ipc';
 import { HandleEvents } from '@/common/eventConst';
+import {
+    getttwid, getRealLink, getQueryString, getRoomInfoFromPercenCenter,
+} from '../lib/dy/dyParser';
 
 /**
  * roomInfo:{
@@ -57,6 +60,16 @@ export const anysisFromLink = async (link) => {
     return ret;
 };
 
+export const anysisRoomInfoFromLink = async (link) => {
+    console.log('要分析的链接： ', link);
+    const realLink = await getRealLink(link);
+    console.log('实际链接:', realLink);
+    const secUserId = getQueryString('sec_uid', realLink);
+    const ret = await getRoomInfoFromPercenCenter(secUserId, 2) || {};
+    console.log(ret);
+    return ret;
+};
+
 
 export const addRoom = (roomInfo) => {
     if (!roomInfo || !roomInfo.roomId) {
@@ -94,3 +107,6 @@ export const deleteRoom = (webRoomId) => {
 registHandle(HandleEvents.ADD_ROOM, addRoom);
 registHandle(HandleEvents.ANYSIS_ROOM_INFO, anysisFromLink);
 registHandle(HandleEvents.DELETE_ROOM, deleteRoom);
+registHandle(HandleEvents.GET_TTWID, getttwid);
+registHandle(HandleEvents.GET_REALLINK, getRealLink);
+registHandle(HandleEvents.ANYSIS_ROOM_INFO_FROM_CENTER, anysisRoomInfoFromLink);

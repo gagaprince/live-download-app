@@ -1,4 +1,4 @@
-import { Event, HandleEvents } from '@/common/eventConst';
+import { Event, HandleEvents, RenderReceiveEvents } from '@/common/eventConst';
 
 const { ipcMain } = require('electron');
 
@@ -14,7 +14,11 @@ export const registHandle = (eventName, handler) => {
     handlerMap[eventName] = handler;
 };
 
-export const initIpc = () => {
+
+let mainWin;
+export const initIpc = (win) => {
+    mainWin = win;
+    // 这种是异步调用 render 调用 main
     Object.keys(Event).forEach((key) => {
         ipcMain.on(Event[key], (event, arg) => {
             const controller = controllerMap[Event[key]];
@@ -26,6 +30,7 @@ export const initIpc = () => {
             }
         });
     });
+    // 这种是同步调用 render 调用 main
     Object.keys(HandleEvents).forEach((key) => {
         console.log(HandleEvents[key]);
         ipcMain.handle(HandleEvents[key], (event, ...args) => {
@@ -40,4 +45,8 @@ export const initIpc = () => {
             return '当前事件没有找到对应的handler';
         });
     });
+};
+
+export const sign = async (options) => {
+    mainWin.webContents.send(RenderReceiveEvents.SIGN, options);
 };
