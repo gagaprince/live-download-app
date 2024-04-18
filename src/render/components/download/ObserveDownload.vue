@@ -94,7 +94,7 @@ export default {
             this.initObserveList();
         },
         async deleteRoom(roomInfo) {
-            await removeObserverDownload(roomInfo.webRoomId);
+            await removeObserverDownload(roomInfo.secUserId);
             this.refresh();
         },
     },

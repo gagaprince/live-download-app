@@ -1,7 +1,7 @@
 import { isDownloading } from '../download/downloadTaskManager';
-import { addDownloadTaskByWebRoomId } from '../download/index';
-import { anysisFromLink, addRoom } from './addRoom';
-import { selectRoomById } from './selectRoom';
+import { addDownloadTaskByUserId } from '../download/index';
+import { anysisRoomInfoBySecUserId, addRoom } from './addRoom';
+import { selectRoomByUserId } from './selectRoom';
 import { registHandle } from '../ipc';
 import { HandleEvents } from '@/common/eventConst';
 
@@ -44,12 +44,12 @@ class ObserverTask {
 
     checkIsDownloading() {
         console.log(`${this.roomInfo.owner} checkIsDownloading`);
-        return isDownloading(this.roomInfo.webRoomId);
+        return isDownloading(this.roomInfo.secUserId);
     }
 
     async checkIsOnline() {
         console.log(`${this.roomInfo.owner} checkIsOnline`);
-        const ret = await anysisFromLink(this.roomInfo.liveLink);
+        const ret = await anysisRoomInfoBySecUserId(this.roomInfo.secUserId);
         if (ret.isOnline) {
             addRoom(ret);
             this.roomInfo = ret;
@@ -69,20 +69,20 @@ class ObserverTask {
         if (await this.checkIsOnline()) {
             // 在线的话 开启下载
             console.log(`${this.roomInfo.owner} 开始下载`);
-            addDownloadTaskByWebRoomId(this.roomInfo.webRoomId);
+            addDownloadTaskByUserId(this.roomInfo.secUserId);
         }
     }
 }
 
 initInterval();
 
-export const addObserverRoom = (webRoomId) => {
+export const addObserverRoom = (secUserId) => {
     const length = observeList.length;
     if (length >= maxObserveLength) {
         throw new Error('监听数已经到最大，请清理一下再添加');
     }
-    const roomInfo = selectRoomById(webRoomId);
-    const ret = observeList.find((task) => task.roomInfo.webRoomId === webRoomId);
+    const roomInfo = selectRoomByUserId(secUserId);
+    const ret = observeList.find((task) => task.roomInfo.secUserId === secUserId);
     if (!ret) {
         observeList.push(new ObserverTask(roomInfo));
     } else {
@@ -90,10 +90,10 @@ export const addObserverRoom = (webRoomId) => {
     }
 };
 
-export const removeObserverRoom = (webRoomId) => {
+export const removeObserverRoom = (secUserId) => {
     for (let i = 0; i < observeList.length; i++) {
         const roomIn = observeList[i].roomInfo;
-        if (roomIn.webRoomId === webRoomId) {
+        if (roomIn.secUserId === secUserId) {
             observeList.splice(i, 1);
             break;
         }

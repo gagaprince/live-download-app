@@ -101,7 +101,7 @@
               link
               type="primary"
               size="small"
-              @click="openLiveLink(scope.row.liveLink)"
+              @click="openLiveLink(scope.row.hoomLink)"
             >
               打开
             </el-button>
@@ -141,8 +141,12 @@
           ref="addRoomForm"
           :model="addRoomObj"
         >
-          <el-form-item label="直播链接">
-            <el-input v-model="addRoomObj.link" />
+          <el-form-item label="个人主页链接">
+            <el-input
+              v-model="addRoomObj.link"
+              type="textarea"
+              :rows="3"
+            />
           </el-form-item>
           <el-form-item style="justify-content:center;">
             <el-button
@@ -185,7 +189,7 @@
 </template>
 <script>
 import {
-    searchRoomInfos, anysisRoomInfo, addRoom, openLink, deleteRoom, addDownloadTask, addObserverDownload,
+    searchRoomInfos, addRoom, openLink, deleteRoom, addDownloadTask, addObserverDownload, anysisRoomInfoFromLink, anysisRoomInfoBySecUserId,
 } from '@/render/common/ipcUtil';
 import TaskListComponent from '@/render/components/tasklist/index.vue';
 
@@ -220,6 +224,7 @@ export default {
             console.log('search');
             console.log('searchObj:', this.formObj);
             this.roomInfos = await searchRoomInfos({ ...this.formObj });
+            console.log(this.roomInfos);
         },
         showAddRoomModal() {
             // 添加房间的弹窗
@@ -244,16 +249,16 @@ export default {
             }
             if (this._checkLink(originLink)) {
                 this.submitAddForm(originLink);
-                return;
             }
-            this.webviewsrc = originLink;
-            setTimeout(() => {
-                this.parseLiveLink();
-            }, 3000);
+            // this.webviewsrc = originLink;
+            // setTimeout(() => {
+            //     this.parseLiveLink();
+            // }, 3000);
         },
+        // https://v.douyin.com/iYq1U9VH/
         _checkLink(link) {
-            const pattern = /^https:\/\/live\.douyin\.com\/\d+$/;
-            return pattern.test(link);
+            console.log(link);
+            return true;
         },
         parseLiveLink() {
             const webview = this.$refs.webviewRef;
@@ -272,9 +277,9 @@ export default {
         async submitAddForm(link) {
             try {
                 // 提交增加room
-                const roomInfo = await anysisRoomInfo(link);
+                const roomInfo = await anysisRoomInfoFromLink(link);
                 console.log('获取的roomInfo:', roomInfo);
-                if (roomInfo && roomInfo.roomId) {
+                if (roomInfo && roomInfo.secUserId) {
                     // 添加roomInfo
                     const saveFlag = await addRoom(roomInfo);
                     if (saveFlag) {
@@ -304,8 +309,8 @@ export default {
             this.addRoomModalFlag = false;
         },
         async checkLiveOnline(oldRoomInfo, isBatch = false) {
-            console.log('检测此链接是否在线', oldRoomInfo.liveLink);
-            const roomInfo = await anysisRoomInfo(oldRoomInfo.liveLink);
+            console.log('检测此用户是否直播在线', oldRoomInfo.secUserId);
+            const roomInfo = await anysisRoomInfoBySecUserId(oldRoomInfo.secUserId);
             if (roomInfo.flvLink !== oldRoomInfo.flvLink) {
                 const saveFlag = await addRoom(roomInfo);
                 if (saveFlag) {
@@ -354,7 +359,7 @@ export default {
             this.search();
         },
         async deleteRoom(roomInfo) {
-            const ret = await deleteRoom(roomInfo.webRoomId);
+            const ret = await deleteRoom(roomInfo.webRoomId, roomInfo.secUserId);
             if (ret) {
                 this.$message({
                     message: '删除成功',
@@ -364,11 +369,11 @@ export default {
             }
         },
         async addDownloadTask(roomInfo) {
-            addDownloadTask(roomInfo.webRoomId);
+            addDownloadTask(roomInfo.secUserId);
         },
         async addOpenLiveListener(roomInfo) {
-            console.log('addOpenLiveListener:', roomInfo.webRoomId);
-            await addObserverDownload(roomInfo.webRoomId);
+            console.log('addOpenLiveListener:', roomInfo.secUserId);
+            await addObserverDownload(roomInfo.secUserId);
         },
 
     },

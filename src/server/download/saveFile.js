@@ -77,12 +77,12 @@ export const addFile = (taskObj = {}) => {
     const {
         roomInfo, size, fileDir, beginTime, filePath,
     } = taskObj;
-    if (roomInfo && roomInfo.webRoomId && size) {
+    if (roomInfo && roomInfo.secUserId && size) {
         let hasIn = false;
         SaveFileConfig.forEach((item) => {
             const roomInfoTmp = item.roomInfo;
             const files = item.files;
-            if (roomInfoTmp.webRoomId === roomInfo.webRoomId) {
+            if (roomInfoTmp.secUserId === roomInfo.secUserId) {
                 hasIn = true;
                 if (files && files.length) {
                     let fileHasIn = false;

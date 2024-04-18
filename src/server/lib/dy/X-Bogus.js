@@ -561,11 +561,7 @@ function sign(e, b) {
 
 export const dySign = (url, agent)=>{
     const query = url.split('?')[1]||''
-    console.log('------------------------')
-    console.log(query, agent)
-    console.log('------------------------')
     const bogus = sign(query, agent);
-    console.log('window:', window);
     return {
         url: `${url}&X-Bogus=${bogus}`,
         xbogus:bogus

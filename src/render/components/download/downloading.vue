@@ -100,7 +100,7 @@
 </template>
 <script>
 import {
-    getDownloadTaskList, stopDownloadTask, openDirectory, anysisRoomInfo, addRoom, addDownloadTask,
+    getDownloadTaskList, stopDownloadTask, openDirectory, anysisRoomInfoFromLink, addRoom, addDownloadTask,
 } from '@/render/common/ipcUtil';
 import { formatMilliseconds } from '@/render/common/lib/date';
 
@@ -143,6 +143,7 @@ export default {
                     avatar: roomInfo.avatar,
                     owner: roomInfo.owner,
                     webRoomId: roomInfo.webRoomId,
+                    secUserId: roomInfo.secUserId,
                     costTime: formatMilliseconds(Date.now() - beginTime),
                     fileSize: `${parseInt(size / 1024 / 1024, 10)}M`,
                     fileDir,
@@ -165,9 +166,9 @@ export default {
             try {
                 // 提交增加room
                 console.log('分析room信息:', this.addDownloadObj);
-                const roomInfo = await anysisRoomInfo(this.addDownloadObj.link);
+                const roomInfo = await anysisRoomInfoFromLink(this.addDownloadObj.link);
                 console.log('获取的roomInfo:', roomInfo);
-                if (roomInfo && roomInfo.roomId) {
+                if (roomInfo && roomInfo.secUserId) {
                     // 添加roomInfo
                     const saveFlag = await addRoom(roomInfo);
                     if (saveFlag) {
@@ -177,7 +178,7 @@ export default {
                         });
                         this.closeAddDownloadDialog();
                         this.addDownloadObj.link = '';
-                        await addDownloadTask(roomInfo.webRoomId);
+                        await addDownloadTask(roomInfo.secUserId);
                         this.refreshDownload();
                     }
                 } else {
@@ -198,8 +199,8 @@ export default {
             this.addDownloadModalFlag = false;
         },
         async stopTask(task) {
-            const webRoomId = task.webRoomId;
-            await stopDownloadTask(webRoomId);
+            const secUserId = task.secUserId;
+            await stopDownloadTask(secUserId);
         },
         async openDir(task) {
             const fileDir = task.fileDir;

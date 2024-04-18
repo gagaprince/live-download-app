@@ -2,14 +2,16 @@ import { getRoomInfos } from '../configUtil';
 import { registHandle } from '../ipc';
 import { HandleEvents } from '@/common/eventConst';
 
-export const selectRoomById = (webRoomId) => {
+
+export const selectRoomByUserId = (secUserId) => {
     const roomInfoList = getRoomInfos();
-    return roomInfoList.find((r) => r.webRoomId === webRoomId);
+    return roomInfoList.find((r) => r.secUserId === secUserId);
 };
+
 
 export const selectRoomInfo = (formOptions) => {
     const roomInfoList = getRoomInfos() || [];
-    let retList = roomInfoList.filter((roomInfo) => !!roomInfo.roomId).reverse();
+    let retList = roomInfoList.filter((roomInfo) => !!roomInfo.secUserId).reverse();
     console.log('selectRoomInfo:', roomInfoList);
     console.log('formOptions:', formOptions);
     if (formOptions && (formOptions.roomId || formOptions.owner)) {

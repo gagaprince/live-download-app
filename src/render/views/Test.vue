@@ -129,10 +129,37 @@
       </el-col>
     </el-row>
   </div>
+  <div style="margin-top: 20px;">
+    <el-row :gutter="24">
+      <el-col :span="8">
+        <el-input
+          v-model="oldUrl"
+          placeholder="请输链接"
+        />
+      </el-col>
+      <el-col :span="8">
+        <el-input
+          v-model="userAgent"
+          placeholder="请输ua"
+        />
+      </el-col>
+      <el-col :span="8">
+        <el-button
+          type="primary"
+          @click="getSignUrl"
+        >
+          sign
+        </el-button>
+      </el-col>
+      <el-col :span="8">
+        signUrl:{{ signUrl }}
+      </el-col>
+    </el-row>
+  </div>
 </template>
 <script>
 import {
-    anysisRoomInfo, addRoom, getttwid, getRealLink, // anysisRoomInfoFromLink,
+    anysisRoomInfo, addRoom, getttwid, getRealLink, anysisRoomInfoFromLink,
 } from '@/render/common/ipcUtil';
 
 import { dySign } from '@/render/common/lib/X-Bogus';
@@ -147,6 +174,9 @@ export default {
             ttwid: '',
             realLink: '',
             originLink: '',
+            userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1',
+            oldUrl: '',
+            signUrl: '',
         };
     },
     methods: {
@@ -200,15 +230,18 @@ export default {
             console.log(ret);
         },
         async getRoomInfo() {
-            const url = 'https://www.douyin.com/aweme/v1/web/aweme/post/?sec_user_id=MS4wLjABAAAA2qJpSW9YHmPvpZohGaTVbR-HHSo2aHazQlp4QHSBOEo&count=2&max_cursor=0&aid=1128&version_name=23.5.0&device_platform=android&os_version=2333';
-            const useragent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36';
+            // const url = 'https://www.douyin.com/aweme/v1/web/aweme/post/?sec_user_id=MS4wLjABAAAA2qJpSW9YHmPvpZohGaTVbR-HHSo2aHazQlp4QHSBOEo&count=2&max_cursor=0&aid=1128&version_name=23.5.0&device_platform=android&os_version=2333';
+            // const useragent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36';
 
-            const ret = dySign(url, useragent);
+            // const ret1 = dySign(url, useragent);
+            // console.log('getRoomInfo:', ret1);
+            const ret = await anysisRoomInfoFromLink(this.originLink);
             console.log(ret);
-
-            // const ret = await anysisRoomInfoFromLink(this.originLink);
-            // // this.realLink = ret;
-            // console.log(ret);
+        },
+        getSignUrl() {
+            const ret = dySign(this.oldUrl, this.userAgent);
+            console.log(ret);
+            this.signUrl = ret.url;
         },
     },
 };

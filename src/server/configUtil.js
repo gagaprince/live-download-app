@@ -60,6 +60,7 @@ export const saveRoomInfos = (rmInfos) => {
 export const getRoomInfos = () => {
     if (roomInfos) return roomInfos;
     const roomInfoFile = getRoomInfoPath();
+    console.log('roomInfoFile:', roomInfoFile);
     try {
         fs.accessSync(roomInfoFile, fs.constants.F_OK);
         roomInfos = JSON.parse(fs.readFileSync(roomInfoFile)) || [];

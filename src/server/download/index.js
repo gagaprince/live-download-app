@@ -1,18 +1,21 @@
 import { addDownloadTask, getDownloadTaskList, stopDownloadTask } from './downloadTaskManager';
-import { selectRoomById } from '../room/selectRoom';
+import { selectRoomByUserId } from '../room/selectRoom';
 import { getSaveFileList, check } from './saveFile';
 
 import { registHandle } from '../ipc';
 import { HandleEvents } from '@/common/eventConst';
 
-export const addDownloadTaskByWebRoomId = (webRoomId) => {
-    const roomInfo = selectRoomById(webRoomId);
+
+export const addDownloadTaskByUserId = (secUserId) => {
+    const roomInfo = selectRoomByUserId(secUserId);
+
     if (roomInfo) {
         addDownloadTask(roomInfo);
     }
 };
 
-registHandle(HandleEvents.ADD_DOWNLOAD_TASK, addDownloadTaskByWebRoomId);
+
+registHandle(HandleEvents.ADD_DOWNLOAD_TASK_BY_USERID, addDownloadTaskByUserId);
 registHandle(HandleEvents.GET_DOWNLOADING_TASKLIST, getDownloadTaskList);
 registHandle(HandleEvents.STOP_DOWNLOADING_TASK, stopDownloadTask);
 registHandle(HandleEvents.GET_SAVE_FILE_LIST, getSaveFileList);

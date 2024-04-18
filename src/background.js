@@ -4,7 +4,7 @@ import {
 } from 'electron';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer';
-import { initIpc } from '@/server/index';
+import { initIpc, updateRoomInfos } from '@/server/index';
 
 const path = require('path');
 
@@ -46,6 +46,8 @@ async function createWindow() {
             winSelect.webContents.openDevTools();
         }
     });
+
+    updateRoomInfos();
 }
 
 // Quit when all windows are closed.

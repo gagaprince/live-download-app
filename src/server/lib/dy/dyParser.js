@@ -1,6 +1,7 @@
 
 import { request } from '../request';
 import { dySign } from './X-Bogus';
+import { xbogusSign } from '@/server/ipc';
 
 
 let ttwidCache = '';
@@ -31,14 +32,6 @@ function generateRandomStr(randomLength = 107) {
 function getMsToken() {
     return generateRandomStr(107);
 }
-
-export const sign = (url, userAgent) => {
-    const ret = dySign(
-        url,
-        userAgent,
-    );
-    return ret;
-};
 
 export const getttwid = async (force = false) => {
     if (!ttwidCache || force) {
@@ -119,7 +112,7 @@ export const getVideoInfoByAwemeId = async (awemeId) => {
     const url = `https://www.douyin.com/aweme/v1/web/aweme/detail/?aweme_id=${awemeId}&aid=1128&version_name=23.5.0&device_platform=android&os_version=2333`;
 
     try {
-        const bogusObj = await sign(url, headers['user-agent']);
+        const bogusObj = await xbogusSign(url, headers['user-agent']);
 
         console.log('bogus:', bogusObj);
 
@@ -143,7 +136,7 @@ export const getVideoInfoByAwemeId = async (awemeId) => {
 
 export const getQueryString = (name, url) => {
     let u = url || window.location.search;
-    const reg = new RegExp(`(^|&)${name}=([^&]*)(&|$)`);
+    const reg = new RegExp(`(^|&|\\?)${name}=([^&]*)(&|$)`);
     if (u.substr(0, 1) === '?') {
         u = u.substr(1);
     }
@@ -166,37 +159,52 @@ export const getRoomInfoFromPercenCenter = async (secUserId, count, maxCursor = 
         referer: `https://www.douyin.com/user/${secUserId}`,
     };
     const url = `https://www.douyin.com/aweme/v1/web/aweme/post/?sec_user_id=${secUserId}&count=${count}&max_cursor=${maxCursor}&aid=1128&version_name=23.5.0&device_platform=android&os_version=2333`;
-    // const url = `https://www.douyin.com/aweme/v1/web/aweme/post/?device_platform=webapp&aid=6383&channel=channel_pc_web&sec_user_id=${secUserId}&max_cursor=${maxCursor}&locate_query=false&show_live_replay_strategy=1&need_time_list=1&time_list_query=0&whale_cut_token=&cut_version=1&count=${count}&publish_video_strategy_type=2&pc_client_type=1&version_code=170400&version_name=17.4.0&cookie_enabled=true&screen_width=1728&screen_height=1117&browser_language=zh-CN&browser_platform=MacIntel&browser_name=Chrome&browser_version=121.0.0.0&browser_online=true&engine_name=Blink&engine_version=121.0.0.0&os_name=Mac+OS&os_version=10.15.7&cpu_core_num=12&device_memory=8&platform=PC&downlink=10&effective_type=4g&round_trip_time=100&webid=7316775486288938546&msToken=${msToken}`;
 
     console.log('url:', url);
     try {
-        // const script = `
-        //     (function(){
-        //         return function(a,b){
-        //             return a+b;
-        //         }
-        //     })()
-        // `;
+        const serverSignRet = await dySign(url, headers['user-agent']);
 
-        // const fun = eval(script);
-
-        // console.log(fun(1, 2));
-
-        const bogusObj = await sign(url, headers['user-agent']);
-
-        console.log('bogus:', bogusObj);
-
-        const newUrl = bogusObj.url;
+        const newUrl = serverSignRet.url;
 
         console.log('newUrl:', newUrl);
 
         const ret = await request({
             url: newUrl,
             headers,
-            responseType: 'text',
+            responseType: 'json',
         });
-        console.log('获取到结果--------');
-        console.log(ret);
+        // console.log('获取到结果--------');
+        // console.log(ret);
+        return ret && ret.data;
+    } catch (e) {
+        console.error(e);
+    }
+    return '';
+};
+
+export const getLiveRoomInfo = async (roomId) => {
+    const headers = {
+        Host: 'webcast.amemv.com',
+        accept: '*/*',
+        'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1',
+        'accept-language': 'zh-Hans-CN;q=1, en-CN;q=0.9, zh-Hant-CN;q=0.8',
+    };
+    const url = `https://webcast.amemv.com/webcast/room/reflow/info/?type_id=0&live_id=1&room_id=${roomId}&version_code=99.99.99&app_id=1128&msToken=`;
+
+    console.log('url:', url);
+    try {
+        const serverSignRet = await dySign(url, headers['user-agent']);
+
+        const newUrl = serverSignRet.url;
+
+        console.log('newUrl:', newUrl);
+
+        const ret = await request({
+            url: newUrl,
+            headers,
+        });
+        // console.log('获取到结果--------');
+        // console.log(ret);
         return ret && ret.data;
     } catch (e) {
         console.error(e);

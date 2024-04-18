@@ -5,21 +5,21 @@ import { addFile } from './saveFile';
 // const downloadTaskList = [];
 const downloadTaskMap = {};
 
-export const isDownloading = (webRoomId) => !!downloadTaskMap[webRoomId];
+export const isDownloading = (secUserId) => !!downloadTaskMap[secUserId];
 
 export const addDownloadTask = (roomInfo = {}) => {
-    if (isDownloading(roomInfo.webRoomId)) return;
+    if (isDownloading(roomInfo.secUserId)) return;
     const task = new DownloadTask(roomInfo);
     try {
         // task.onProgress((size) => {
         //     console.log('文件大小:', size);
         // });
         task.onFinished(() => {
-            downloadTaskMap[roomInfo.webRoomId] = undefined;
+            downloadTaskMap[roomInfo.secUserId] = undefined;
             addFile(task.toJSONObject());
         });
         task.exec();
-        downloadTaskMap[roomInfo.webRoomId] = task;
+        downloadTaskMap[roomInfo.secUserId] = task;
         setTimeout(() => {
             addFile(task.toJSONObject());
         }, 10000);
@@ -33,8 +33,8 @@ export const saveAllDownloadFile = () => {
     Object.keys(downloadTaskMap).forEach((key) => addFile(downloadTaskMap[key].toJSONObject()));
 };
 
-export const stopDownloadTask = (webRoomId) => {
-    const task = downloadTaskMap[webRoomId];
+export const stopDownloadTask = (secUserId) => {
+    const task = downloadTaskMap[secUserId];
     if (task) task.destroy();
 };
 

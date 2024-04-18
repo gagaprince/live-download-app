@@ -12,6 +12,7 @@ export const HandleEvents = {
     OPEN_LINK_EXPORT: 'open_url',
     DELETE_ROOM: 'delete_room',
     ADD_DOWNLOAD_TASK: 'add_download_task',
+    ADD_DOWNLOAD_TASK_BY_USERID: 'add_download_task_by_user',
     SELECT_DIR: 'select_dir',
     OPEN_DIR: 'open_dir',
     GET_DOWNLOADING_TASKLIST: 'get_downloading_tasklist',
@@ -24,8 +25,10 @@ export const HandleEvents = {
     GET_TTWID: 'get_ttwid',
     GET_REALLINK: 'get_real_link',
     ANYSIS_ROOM_INFO_FROM_CENTER: 'anysis_room_info_from_center',
+    ANYSIS_ROOM_INFO_BY_SECID: 'anysis_room_info_by_secid',
 };
 
 export const RenderReceiveEvents = {
-    SIGN: 'get_xbogus',
+    PING: 'render_ping',
+    PONG: 'render_pong',
 };
