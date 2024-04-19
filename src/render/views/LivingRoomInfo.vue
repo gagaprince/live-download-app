@@ -95,7 +95,7 @@
         <el-table-column
           fixed="right"
           label="操作"
-          width="240"
+          width="300"
         >
           <template #default="scope">
             <el-button

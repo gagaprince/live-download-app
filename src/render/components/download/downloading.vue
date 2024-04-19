@@ -40,6 +40,16 @@
         width="180"
       />
       <el-table-column
+        label="分类"
+        width="100"
+      >
+        <template #default="scope">
+          <div>
+            {{ getType(scope.row.roomType || 1) }}
+          </div>
+        </template>
+      </el-table-column>
+      <el-table-column
         prop="fileSize"
         label="已下载"
         width="180"
@@ -102,6 +112,7 @@
 import {
     getDownloadTaskList, stopDownloadTask, openDirectory, anysisRoomInfoFromLink, addRoom, addDownloadTask,
 } from '@/render/common/ipcUtil';
+import { RoomTypeOpts } from '@/common/eventConst';
 import { formatMilliseconds } from '@/render/common/lib/date';
 
 export default {
@@ -205,6 +216,13 @@ export default {
         async openDir(task) {
             const fileDir = task.fileDir;
             await openDirectory(fileDir);
+        },
+        getType(type) {
+            const typeMap = RoomTypeOpts.reduce((pre, item) => {
+                pre[item.value] = item;
+                return pre;
+            }, {});
+            return typeMap[type].label;
         },
     },
 };

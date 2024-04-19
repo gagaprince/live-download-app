@@ -45,6 +45,10 @@ export const RoomTypeOpts = [
     },
     {
         value: '3',
+        label: '颜值',
+    },
+    {
+        value: '4',
         label: '其他',
     },
 ];
