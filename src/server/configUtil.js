@@ -48,7 +48,9 @@ export const setWorkSpace = (filePath) => {
 };
 
 const getRoomInfoPath = () => path.join(getAppConfigPath(), 'roominfo.json');
+const getObservRoomInfoPath = () => path.join(getAppConfigPath(), 'observeRoominfo.json');
 let roomInfos;
+let observRoomInfos;
 
 
 export const saveRoomInfos = (rmInfos) => {
@@ -73,6 +75,27 @@ export const getRoomInfos = () => {
     return roomInfos;
 };
 
+export const saveObservRoomInfos = (rmInfos) => {
+    observRoomInfos = rmInfos;
+    const obRoomInfoFile = getObservRoomInfoPath();
+    fs.writeFileSync(obRoomInfoFile, JSON.stringify(observRoomInfos || []));
+};
+
+export const getObservRoomInfos = () => {
+    if (observRoomInfos) return observRoomInfos;
+    const obRoomInfoFile = getObservRoomInfoPath();
+    console.log('roomInfoFile:', obRoomInfoFile);
+    try {
+        fs.accessSync(obRoomInfoFile, fs.constants.F_OK);
+        observRoomInfos = JSON.parse(fs.readFileSync(obRoomInfoFile)) || [];
+    } catch (err) {
+    // 文件不存在 新建此文件并写入默认的配置
+        const fileDir = path.dirname(obRoomInfoFile);
+        fs.mkdirSync(fileDir, { recursive: true });
+        saveObservRoomInfos(observRoomInfos);
+    }
+    return observRoomInfos;
+};
 
 initAppConfig();
 

@@ -184,6 +184,23 @@ export const addRoom = (roomInfo) => {
     return true;
 };
 
+export const editRoomTypeByUserId = (roomType, secUserId) => {
+    if (!roomType || !secUserId) {
+        return false;
+    }
+    const roomInfos = getRoomInfos();
+    // 此处需要查询当前房间信息中是否已经存在要存入的房间
+    const roomIn = roomInfos.find((item) => item.secUserId === secUserId);
+    console.log('roomin:', roomIn);
+    if (roomIn) {
+        roomIn.roomType = roomType;
+    } else {
+        return false;
+    }
+    saveRoomInfos(roomInfos);
+    return true;
+};
+
 export const deleteRoom = (secUserId) => {
     console.log(secUserId);
     if (!secUserId) {
@@ -208,3 +225,4 @@ registHandle(HandleEvents.GET_TTWID, getttwid);
 registHandle(HandleEvents.GET_REALLINK, getRealLink);
 registHandle(HandleEvents.ANYSIS_ROOM_INFO_FROM_CENTER, anysisRoomInfoFromLink);
 registHandle(HandleEvents.ANYSIS_ROOM_INFO_BY_SECID, anysisRoomInfoBySecUserId);
+registHandle(HandleEvents.EDIT_ROOM_TYPE, editRoomTypeByUserId);

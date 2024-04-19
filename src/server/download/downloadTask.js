@@ -2,6 +2,7 @@ import emojiRegex from 'emoji-regex';
 import { getWorkSpace } from '../configUtil';
 import { formatDate, formatDay } from '../util/date';
 import { Download } from './download';
+import { RoomTypeOpts } from '@/common/eventConst';
 
 
 const fs = require('fs');
@@ -33,7 +34,8 @@ export class DownloadTask {
         this.flvLink = roomInfo.flvLink || '';
         this.canDownload = !!this.flvLink;
         const ownerTmp = roomInfo.owner.replace(regex, '').replace(/\./g, '_');
-        this.fileDir = path.resolve(workspace, formatDay(), ownerTmp, formatDate());
+        const roomTypeStr = this.getType(roomInfo.roomType || '1');
+        this.fileDir = path.resolve(workspace, formatDay(), roomTypeStr, ownerTmp, formatDate());
         this.filePath = path.resolve(this.fileDir, `${Date.now()}.flv`);
         this.beginTime = Date.now();
     }
@@ -115,5 +117,13 @@ export class DownloadTask {
             this.downloader.stopDownload();
         }
         this.finishListeners.forEach((fun) => fun());
+    }
+
+    getType(type) {
+        const typeMap = RoomTypeOpts.reduce((pre, item) => {
+            pre[item.value] = item;
+            return pre;
+        }, {});
+        return typeMap[type].label;
     }
 }

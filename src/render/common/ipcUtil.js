@@ -1,4 +1,6 @@
-import { Event, HandleEvents, RenderReceiveEvents } from '@/common/eventConst';
+import {
+    Event, HandleEvents, RenderReceiveEvents,
+} from '@/common/eventConst';
 
 import ipcMethods from './ipcMethods';
 
@@ -80,10 +82,11 @@ export const stopDownloadTask = async (secUserId) => await ipcRenderer.invoke(Ha
 export const getSaveFileList = async () => await ipcRenderer.invoke(HandleEvents.GET_SAVE_FILE_LIST);
 export const reCheckFileList = async () => await ipcRenderer.invoke(HandleEvents.RECHECK_SAVE_FILE_LIST);
 
-export const addObserverDownload = async (secUserId) => await ipcRenderer.invoke(HandleEvents.ADD_OBSERVER_DOWNLOAD_TASK, secUserId);
+export const addObserverDownload = async (secUserId, type) => await ipcRenderer.invoke(HandleEvents.ADD_OBSERVER_DOWNLOAD_TASK, secUserId, type);
 export const removeObserverDownload = async (secUserId) => await ipcRenderer.invoke(HandleEvents.REMOVE_OBSERVER_DOWNLOAD_TASK, secUserId);
 export const getAllObserverDownloadTask = async () => await ipcRenderer.invoke(HandleEvents.GET_OBSERVER_DOWNLOAD_TASK);
 export const getttwid = async () => await ipcRenderer.invoke(HandleEvents.GET_TTWID);
 export const getRealLink = async (origin) => await ipcRenderer.invoke(HandleEvents.GET_REALLINK, origin);
 export const anysisRoomInfoFromLink = async (origin) => await ipcRenderer.invoke(HandleEvents.ANYSIS_ROOM_INFO_FROM_CENTER, origin);
 export const anysisRoomInfoBySecUserId = async (secUid) => await ipcRenderer.invoke(HandleEvents.ANYSIS_ROOM_INFO_BY_SECID, secUid);
+export const editRoomTypeByUserId = async (roomType, secUserId) => await ipcRenderer.invoke(HandleEvents.EDIT_ROOM_TYPE, roomType, secUserId);

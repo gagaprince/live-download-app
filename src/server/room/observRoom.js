@@ -4,8 +4,10 @@ import { anysisRoomInfoBySecUserId, addRoom } from './addRoom';
 import { selectRoomByUserId } from './selectRoom';
 import { registHandle } from '../ipc';
 import { HandleEvents } from '@/common/eventConst';
+import { saveObservRoomInfos, getObservRoomInfos } from '@/server/configUtil';
 
 const observeList = [];
+let observeRoomList = [];
 const maxObserveLength = 100;
 
 const initInterval = () => {
@@ -74,22 +76,6 @@ class ObserverTask {
     }
 }
 
-initInterval();
-
-export const addObserverRoom = (secUserId) => {
-    const length = observeList.length;
-    if (length >= maxObserveLength) {
-        throw new Error('监听数已经到最大，请清理一下再添加');
-    }
-    const roomInfo = selectRoomByUserId(secUserId);
-    const ret = observeList.find((task) => task.roomInfo.secUserId === secUserId);
-    if (!ret) {
-        observeList.push(new ObserverTask(roomInfo));
-    } else {
-        console.log('重复了 不要重复监听');
-    }
-};
-
 export const removeObserverRoom = (secUserId) => {
     for (let i = 0; i < observeList.length; i++) {
         const roomIn = observeList[i].roomInfo;
@@ -98,11 +84,53 @@ export const removeObserverRoom = (secUserId) => {
             break;
         }
     }
+    for (let i = 0; i < observeRoomList.length; i++) {
+        const roomIn = observeRoomList[i];
+        if (roomIn.secUserId === secUserId) {
+            observeRoomList.splice(i, 1);
+            saveObservRoomInfos(observeRoomList);
+            break;
+        }
+    }
 };
+
+export const addObserverRoom = (secUserId, isInit) => {
+    const length = observeList.length;
+    if (length >= maxObserveLength) {
+        throw new Error('监听数已经到最大，请清理一下再添加');
+    }
+    // console.log('addObserverRoom secUserId')
+    const roomInfo = selectRoomByUserId(secUserId);
+    if (roomInfo) {
+        const ret = observeList.find((task) => task.roomInfo.secUserId === secUserId);
+        if (!ret) {
+            observeList.push(new ObserverTask(roomInfo));
+            if (!isInit) {
+                observeRoomList.push(roomInfo);
+                saveObservRoomInfos(observeRoomList);
+            }
+        } else {
+            console.log('重复了 不要重复监听');
+        }
+    } else {
+        // 说明 secUserId 不在全局列表中 需要删除
+        removeObserverRoom(secUserId);
+    }
+};
+
 
 export const getAllObserverTask = () => {
     const roomInfoList = observeList.map((task) => task.roomInfo);
     return roomInfoList;
+};
+
+export const initObserverRoom = () => {
+    observeRoomList = getObservRoomInfos();
+    for (let i = 0; i < observeRoomList.length; i++) {
+        const roomIn = observeRoomList[i];
+        addObserverRoom(roomIn.secUserId, true);
+    }
+    initInterval();
 };
 
 registHandle(HandleEvents.ADD_OBSERVER_DOWNLOAD_TASK, addObserverRoom);

@@ -58,12 +58,6 @@
           label="房间号"
           width="180"
         />
-
-        <el-table-column
-          prop="owner"
-          label="房主"
-          width="180"
-        />
         <el-table-column
           prop="roomTitle"
           label="描述"
@@ -83,6 +77,21 @@
             </div>
           </template>
         </el-table-column>
+        <el-table-column
+          label="分类"
+          width="100"
+        >
+          <template #default="scope">
+            <div>
+              {{ getType(scope.row.roomType || 1) }}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column
+          prop="owner"
+          label="房主"
+          width="180"
+        />
         <el-table-column
           fixed="right"
           label="操作"
@@ -122,7 +131,14 @@
             >
               监听
             </el-button>
-
+            <el-button
+              link
+              type="primary"
+              size="small"
+              @click="openEditDialog(scope.row)"
+            >
+              编辑
+            </el-button>
             <el-button
               link
               type="primary"
@@ -147,6 +163,19 @@
               type="textarea"
               :rows="3"
             />
+          </el-form-item>
+          <el-form-item label="请选择分类">
+            <el-select
+              v-model="addRoomObj.roomType"
+              placeholder="请选择直播分类"
+            >
+              <el-option
+                v-for="item in roomTypeOpts"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
           </el-form-item>
           <el-form-item style="justify-content:center;">
             <el-button
@@ -178,6 +207,96 @@
         </div>
       </el-dialog>
     </div>
+    <div>
+      <el-dialog v-model="addObserveFlag">
+        <el-form
+          ref="addObserveForm"
+          :model="addObserveRoomObj"
+        >
+          <el-form-item label="请选择分类">
+            <el-select
+              v-model="addObserveRoomObj.observeType"
+              placeholder="请选择监听分类"
+            >
+              <el-option
+                v-for="item in roomTypeOpts"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </el-form-item>
+          <el-form-item style="justify-content:center;">
+            <el-button
+              type="primary"
+              @click="addOpenLiveListener"
+            >
+              确认
+            </el-button>
+            <el-button @click="closeAddObserveRoomDialog">
+              取消
+            </el-button>
+          </el-form-item>
+        </el-form>
+      </el-dialog>
+    </div>
+    <div>
+      <el-dialog
+        v-model="editRoomModalFlag"
+        style="width:600px;"
+      >
+        <el-form
+          ref="editRoomInfoForm"
+          :inline="true"
+          class="demo-form-inline"
+          :model="editRoomObj"
+        >
+          <el-form-item>
+            <div class="block">
+              <el-avatar
+                shape="square"
+                :size="50"
+                :src="editRoomObj.roomInfo.avatar"
+              />
+            </div>
+          </el-form-item>
+          <el-form-item>
+            <div class="block">
+              {{ editRoomObj.roomInfo.owner }}
+            </div>
+          </el-form-item>
+          <el-form-item label="请选择分类">
+            <el-select
+              v-model="editRoomObj.roomType"
+              placeholder="请选择分类"
+            >
+              <el-option
+                v-for="item in roomTypeOpts"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </el-form-item>
+        </el-form>
+        <el-row :gutter="24">
+          <el-col :span="8" />
+          <el-col :span="12">
+            <el-form-item style="justify-content:center;">
+              <el-button
+                type="primary"
+                @click="editRoomInfo"
+              >
+                确认
+              </el-button>
+              <el-button @click="closeEditDialog">
+                取消
+              </el-button>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-dialog>
+    </div>
     <div style="position: absolute; top:-10000px;">
       <webview
         ref="webviewRef"
@@ -190,7 +309,11 @@
 <script>
 import {
     searchRoomInfos, addRoom, openLink, deleteRoom, addDownloadTask, addObserverDownload, anysisRoomInfoFromLink, anysisRoomInfoBySecUserId,
+    editRoomTypeByUserId,
 } from '@/render/common/ipcUtil';
+
+import { RoomTypeOpts } from '@/common/eventConst';
+
 import TaskListComponent from '@/render/components/tasklist/index.vue';
 
 export default {
@@ -206,9 +329,20 @@ export default {
             },
             addRoomObj: {
                 link: '',
+                roomType: '1',
+            },
+            roomTypeOpts: RoomTypeOpts,
+            addObserveRoomObj: {
+                observeType: '1',
+            },
+            editRoomObj: {
+                roomInfo: null,
+                roomType: '1',
             },
             addRoomModalFlag: false,
             batchCheckFlag: false,
+            addObserveFlag: false,
+            editRoomModalFlag: false,
             batchTasks: [],
             webviewsrc: '',
         };
@@ -248,7 +382,7 @@ export default {
                 });
             }
             if (this._checkLink(originLink)) {
-                this.submitAddForm(originLink);
+                this.submitAddForm(originLink, this.addRoomObj.roomType);
             }
             // this.webviewsrc = originLink;
             // setTimeout(() => {
@@ -274,13 +408,14 @@ export default {
                 }
             });
         },
-        async submitAddForm(link) {
+        async submitAddForm(link, type) {
             try {
                 // 提交增加room
                 const roomInfo = await anysisRoomInfoFromLink(link);
                 console.log('获取的roomInfo:', roomInfo);
                 if (roomInfo && roomInfo.secUserId) {
                     // 添加roomInfo
+                    roomInfo.roomType = type;
                     const saveFlag = await addRoom(roomInfo);
                     if (saveFlag) {
                         this.$message({
@@ -359,7 +494,7 @@ export default {
             this.search();
         },
         async deleteRoom(roomInfo) {
-            const ret = await deleteRoom(roomInfo.webRoomId, roomInfo.secUserId);
+            const ret = await deleteRoom(roomInfo.secUserId);
             if (ret) {
                 this.$message({
                     message: '删除成功',
@@ -372,9 +507,52 @@ export default {
             addDownloadTask(roomInfo.secUserId);
         },
         async addOpenLiveListener(roomInfo) {
-            console.log('addOpenLiveListener:', roomInfo.secUserId);
+            // const roomInfo = this.addObserveRoomObj.roomInfo;
+            // const type = this.addObserveRoomObj.observeType;
+            // console.log('addOpenLiveListener:', roomInfo.secUserId);
+            // console.log('添加到分类:', type);
+
             await addObserverDownload(roomInfo.secUserId);
         },
+        async openLiveListenerDialog(roomInfo) {
+            // 打开监听配置dialog
+            this.addObserveRoomObj.roomInfo = roomInfo;
+            this.addObserveFlag = true;
+        },
+        closeAddObserveRoomDialog() {
+            this.addObserveRoomObj.roomInfo = null;
+            this.addObserveFlag = false;
+        },
+        getType(type) {
+            const typeMap = this.roomTypeOpts.reduce((pre, item) => {
+                pre[item.value] = item;
+                return pre;
+            }, {});
+            return typeMap[type].label;
+        },
+        openEditDialog(roomInfo) {
+            console.log('openEditDialog:', roomInfo);
+            this.editRoomObj.roomInfo = roomInfo;
+            this.editRoomModalFlag = true;
+        },
+        closeEditDialog() {
+            this.editRoomModalFlag = false;
+            this.editRoomObj.roomInfo = {};
+        },
+        async editRoomInfo() {
+            const roomInfo = this.editRoomObj.roomInfo;
+            roomInfo.roomType = this.editRoomObj.roomType;
+            const saveFlag = await editRoomTypeByUserId(this.editRoomObj.roomType, roomInfo.secUserId);
+            if (saveFlag) {
+                this.$message({
+                    message: '状态更新成功',
+                    type: 'success',
+                });
+                this.search();
+            }
+            this.closeEditDialog();
+        },
+
 
     },
 };

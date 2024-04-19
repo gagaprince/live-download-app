@@ -26,9 +26,25 @@ export const HandleEvents = {
     GET_REALLINK: 'get_real_link',
     ANYSIS_ROOM_INFO_FROM_CENTER: 'anysis_room_info_from_center',
     ANYSIS_ROOM_INFO_BY_SECID: 'anysis_room_info_by_secid',
+    EDIT_ROOM_TYPE: 'edit_room_type_by_userid',
 };
 
 export const RenderReceiveEvents = {
     PING: 'render_ping',
     PONG: 'render_pong',
 };
+
+export const RoomTypeOpts = [
+    {
+        value: '1',
+        label: '舞蹈',
+    },
+    {
+        value: '2',
+        label: '唱歌',
+    },
+    {
+        value: '3',
+        label: '其他',
+    },
+];
