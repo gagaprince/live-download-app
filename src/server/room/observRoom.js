@@ -13,15 +13,19 @@ const maxObserveLength = 100;
 const initInterval = () => {
     let isRunning = false;
     setInterval(async () => {
-        if (isRunning) return;
-        isRunning = true;
-        // 具体的遍历 observeList 进行检测的过程
-        for (let i = 0; i < observeList.length; i++) {
-            const task = observeList[i];
-            await task.checkOnlineForDownload();
+        try {
+            if (isRunning) return;
+            isRunning = true;
+            // 具体的遍历 observeList 进行检测的过程
+            for (let i = 0; i < observeList.length; i++) {
+                const task = observeList[i];
+                await task.checkOnlineForDownload();
+            }
+            // 还原 isRunning
+            isRunning = false;
+        } catch (e) {
+            console.error(e);
         }
-        // 还原 isRunning
-        isRunning = false;
     }, 10000);
 };
 
