@@ -37,7 +37,6 @@ export const sayHello = () => helloSend('hello');
  */
 const initCallRenderMethod = () => {
     ipcRenderer.on(RenderReceiveEvents.PING, async (event, arg) => {
-        console.log(arg);
         const { methodName, msgId, args } = arg;
         if (ipcMethods[methodName]) {
             const ret = await ipcMethods[methodName](...args);
@@ -97,3 +96,5 @@ export const editRoomTypeByUserId = async (roomType, secUserId) => await ipcRend
 
 export const getVideoInfoByLink = async (link) => await ipcRenderer.invoke(HandleEvents.GET_VIDEO_INFO, link);
 export const downloadSmallVideoByLink = async (link) => await ipcRenderer.invoke(HandleEvents.DOWNLOAD_SMALL_VIDEO, link);
+
+export const openDevTool = async () => await ipcRenderer.invoke(HandleEvents.OPEN_DEV_TOOLS);

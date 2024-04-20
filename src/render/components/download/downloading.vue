@@ -45,7 +45,7 @@
       >
         <template #default="scope">
           <div>
-            {{ getType(scope.row.roomInfo.roomType || 1) }}
+            {{ getType(scope.row.roomType || 1) }}
           </div>
         </template>
       </el-table-column>
@@ -155,6 +155,7 @@ export default {
                     owner: roomInfo.owner,
                     webRoomId: roomInfo.webRoomId,
                     secUserId: roomInfo.secUserId,
+                    roomType: roomInfo.roomType,
                     costTime: formatMilliseconds(Date.now() - beginTime),
                     fileSize: `${parseInt(size / 1024 / 1024, 10)}M`,
                     fileDir,

@@ -6,4 +6,7 @@ export default {
         console.log('xbogusSign ret:', ret);
         return ret;
     },
+    logRender: (str, type = 'log') => {
+        console[type](`from-server:---${str}`);
+    },
 };

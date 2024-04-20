@@ -1,10 +1,10 @@
 import got from 'got';
 
 export const request = ({
-    url, data, method = 'GET', headers = {}, followRedirects = true, responseType = 'json',
+    url, data, method = 'GET', headers = {}, followRedirects = true, responseType = 'json', timeout = 10000,
 }) => {
     const arg1 = {
-        headers, followRedirect: !!followRedirects, method,
+        headers, followRedirect: !!followRedirects, method, timeout,
     };
     if (method === 'GET') {
         if (data) {

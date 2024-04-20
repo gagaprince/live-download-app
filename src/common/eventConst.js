@@ -31,6 +31,7 @@ export const HandleEvents = {
     EDIT_ROOM_TYPE: 'edit_room_type_by_userid',
     GET_VIDEO_INFO: 'get_video_info',
     DOWNLOAD_SMALL_VIDEO: 'download_small_video',
+    OPEN_DEV_TOOLS: 'open_dev_tools',
 };
 
 export const RenderReceiveEvents = {

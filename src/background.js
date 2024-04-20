@@ -4,7 +4,11 @@ import {
 } from 'electron';
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer';
-import { initIpc, updateRoomInfos, initObserverRoom } from '@/server/index';
+import {
+    initIpc, updateRoomInfos, initObserverRoom, registHandle,
+} from '@/server/index';
+
+import { HandleEvents } from '@/common/eventConst';
 
 const path = require('path');
 
@@ -14,6 +18,13 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
 protocol.registerSchemesAsPrivileged([
     { scheme: 'app', privileges: { secure: true, standard: true } },
 ]);
+
+const openDevTools = () => {
+    const winSelect = BrowserWindow.getFocusedWindow();
+    if (winSelect) {
+        winSelect.webContents.openDevTools();
+    }
+};
 
 async function createWindow() {
     // Create the browser window.
@@ -51,7 +62,10 @@ async function createWindow() {
     updateRoomInfos();
     // 初始化监听
     initObserverRoom();
+
+    registHandle(HandleEvents.OPEN_DEV_TOOLS, openDevTools);
 }
+
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {

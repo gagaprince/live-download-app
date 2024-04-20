@@ -102,3 +102,10 @@ export const xbogusSign = async (url, agent) => {
     });
     console.log(ret);
 };
+
+global.logRender = async (...args) => {
+    await invokeRenderMethod({
+        methodName: 'logRender',
+        args: [...args],
+    });
+};

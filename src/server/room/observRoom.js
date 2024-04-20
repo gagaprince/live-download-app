@@ -14,7 +14,11 @@ const initInterval = () => {
     let isRunning = false;
     setInterval(async () => {
         try {
-            if (isRunning) return;
+            if (isRunning) {
+                global.logRender('有正在进行中的检测，跳过此次');
+                return;
+            }
+            global.logRender('----------------开始检测------------------');
             isRunning = true;
             // 具体的遍历 observeList 进行检测的过程
             for (let i = 0; i < observeList.length; i++) {
@@ -23,8 +27,11 @@ const initInterval = () => {
             }
             // 还原 isRunning
             isRunning = false;
+            global.logRender('----------------结束检测------------------');
         } catch (e) {
+            isRunning = false;
             console.error(e);
+            global.logRender(e, 'error');
         }
     }, 10000);
 };
@@ -44,18 +51,22 @@ class ObserverTask {
 
     checkNeedCheck() {
         console.log(`${this.roomInfo.owner} checkNeedCheck`);
+        global.logRender(`${this.roomInfo.owner} checkNeedCheck`);
         const now = Date.now();
         return now - this.lastTime > this.timeout * 1000;
     }
 
     checkIsDownloading() {
         console.log(`${this.roomInfo.owner} checkIsDownloading`);
+        global.logRender(`${this.roomInfo.owner} checkIsDownloading`);
         return isDownloading(this.roomInfo.secUserId);
     }
 
     async checkIsOnline() {
         console.log(`${this.roomInfo.owner} checkIsOnline`);
+        global.logRender(`${this.roomInfo.owner} checkIsOnline`);
         const ret = await anysisRoomInfoBySecUserId(this.roomInfo.secUserId);
+        global.logRender(`${this.roomInfo.owner} ret.isOnline: ${ret.isOnline}`);
         if (ret.isOnline) {
             addRoom(ret);
             this.roomInfo = ret;
@@ -75,6 +86,7 @@ class ObserverTask {
         if (await this.checkIsOnline()) {
             // 在线的话 开启下载
             console.log(`${this.roomInfo.owner} 开始下载`);
+            global.logRender(`${this.roomInfo.owner} 开始下载`);
             addDownloadTaskByUserId(this.roomInfo.secUserId);
         }
     }

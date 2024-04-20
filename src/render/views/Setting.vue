@@ -62,13 +62,19 @@
         >
           保存
         </el-button>
+        <el-button
+          type="primary"
+          @click="openDevTool"
+        >
+          打开控制台
+        </el-button>
       </el-col>
     </el-row>
   </div>
 </template>
 <script>
 import {
-    getWorkspace, setWorkspace, selectDirectory, getVideoWorkspace, setVideoWorkspace,
+    getWorkspace, setWorkspace, selectDirectory, getVideoWorkspace, setVideoWorkspace, openDevTool,
 } from '@/render/common/ipcUtil';
 
 export default {
@@ -109,6 +115,9 @@ export default {
                     type: 'success',
                 });
             }
+        },
+        openDevTool() {
+            openDevTool();
         },
     },
 };
