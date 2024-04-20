@@ -67,6 +67,10 @@ export const getWorkspace = async () => {
 
 export const setWorkspace = async (path) => await ipcRenderer.invoke(HandleEvents.SET_WORKSPACE, path);
 
+
+export const getVideoWorkspace = async () => await ipcRenderer.invoke(HandleEvents.GET_VIDEO_WORKSPACE);
+export const setVideoWorkspace = async (path) => await ipcRenderer.invoke(HandleEvents.SET_VIDEO_WORKSPACE, path);
+
 export const searchRoomInfos = async (opt) => await ipcRenderer.invoke(HandleEvents.SEARCH_ROOM_INFOS, opt);
 export const anysisRoomInfo = async (link) => await ipcRenderer.invoke(HandleEvents.ANYSIS_ROOM_INFO, link);
 export const addRoom = async (roomInfo) => await ipcRenderer.invoke(HandleEvents.ADD_ROOM, roomInfo);
@@ -90,3 +94,6 @@ export const getRealLink = async (origin) => await ipcRenderer.invoke(HandleEven
 export const anysisRoomInfoFromLink = async (origin) => await ipcRenderer.invoke(HandleEvents.ANYSIS_ROOM_INFO_FROM_CENTER, origin);
 export const anysisRoomInfoBySecUserId = async (secUid) => await ipcRenderer.invoke(HandleEvents.ANYSIS_ROOM_INFO_BY_SECID, secUid);
 export const editRoomTypeByUserId = async (roomType, secUserId) => await ipcRenderer.invoke(HandleEvents.EDIT_ROOM_TYPE, roomType, secUserId);
+
+export const getVideoInfoByLink = async (link) => await ipcRenderer.invoke(HandleEvents.GET_VIDEO_INFO, link);
+export const downloadSmallVideoByLink = async (link) => await ipcRenderer.invoke(HandleEvents.DOWNLOAD_SMALL_VIDEO, link);

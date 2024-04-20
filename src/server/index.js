@@ -6,3 +6,4 @@ export * from './room/observRoom';
 export * from './link/openLink';
 export * from './download/index';
 export * from './selectDirOrFile/index';
+export * from './video/downloadVideo';

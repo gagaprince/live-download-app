@@ -1,7 +1,7 @@
 
 import { request } from '../request';
 import { dySign } from './X-Bogus';
-import { xbogusSign } from '@/server/ipc';
+// import { xbogusSign } from '@/server/ipc';s
 
 
 let ttwidCache = '';
@@ -112,21 +112,13 @@ export const getVideoInfoByAwemeId = async (awemeId) => {
     const url = `https://www.douyin.com/aweme/v1/web/aweme/detail/?aweme_id=${awemeId}&aid=1128&version_name=23.5.0&device_platform=android&os_version=2333`;
 
     try {
-        const bogusObj = await xbogusSign(url, headers['user-agent']);
-
-        console.log('bogus:', bogusObj);
-
+        const bogusObj = await dySign(url, headers['user-agent']);
         const newUrl = bogusObj.url;
-
         console.log('newUrl:', newUrl);
-
         const ret = await request({
             url: newUrl,
             headers,
         });
-
-        console.log(ret);
-
         return ret && ret.data;
     } catch (e) {
         console.error(e);

@@ -45,7 +45,7 @@
       >
         <template #default="scope">
           <div>
-            {{ getType(scope.row.roomType || 1) }}
+            {{ getType(scope.row.roomInfo.roomType || 1) }}
           </div>
         </template>
       </el-table-column>

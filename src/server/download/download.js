@@ -48,9 +48,9 @@ export class Download {
                 this.status = 'finished';
                 resolve();
             });
-            writer.on('error', () => {
+            writer.on('error', (e) => {
                 this.status = 'error';
-                reject();
+                reject(e);
             });
         });
     }

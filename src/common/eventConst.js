@@ -6,6 +6,8 @@ export const HandleEvents = {
     TEST: 'test',
     GET_WORKSPACE: 'get_workspace',
     SET_WORKSPACE: 'set_workspace',
+    GET_VIDEO_WORKSPACE: 'get_video_workspace',
+    SET_VIDEO_WORKSPACE: 'set_video_workspace',
     SEARCH_ROOM_INFOS: 'search_room_infos',
     ADD_ROOM: 'add_room',
     ANYSIS_ROOM_INFO: 'anysis_room_info',
@@ -27,6 +29,8 @@ export const HandleEvents = {
     ANYSIS_ROOM_INFO_FROM_CENTER: 'anysis_room_info_from_center',
     ANYSIS_ROOM_INFO_BY_SECID: 'anysis_room_info_by_secid',
     EDIT_ROOM_TYPE: 'edit_room_type_by_userid',
+    GET_VIDEO_INFO: 'get_video_info',
+    DOWNLOAD_SMALL_VIDEO: 'download_small_video',
 };
 
 export const RenderReceiveEvents = {

@@ -2,7 +2,7 @@
   <div class="container">
     <el-container>
       <el-header class="header">
-        抖音直播下载工具
+        直播&短视频下载工具
       </el-header>
       <el-container>
         <el-aside width="200px">
@@ -20,6 +20,10 @@
             <el-menu-item index="/living-download">
               <el-icon><Download /></el-icon>
               <span>直播下载</span>
+            </el-menu-item>
+            <el-menu-item index="/batch-download">
+              <el-icon><Coordinate /></el-icon>
+              <span>短视频下载</span>
             </el-menu-item>
             <el-menu-item index="/setting">
               <el-icon><Setting /></el-icon>

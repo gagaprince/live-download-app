@@ -10,11 +10,13 @@ const getUserPath = () => app.getPath('userData');
 const getDocPath = () => app.getPath('documents');
 const getAppConfigPath = () => path.resolve(getUserPath(), 'liveDownload');
 const getDefaultWorkspacePath = () => path.resolve(getDocPath(), 'liveDownload');
+const getDefaultVideoWorkspacePath = () => path.resolve(getDocPath(), 'videoDownload');
 const getUserConfigFile = () => path.resolve(getAppConfigPath(), 'config.json');
 export const getUserSaveFileConfig = () => path.resolve(getAppConfigPath(), 'saveFileConfig.json');
 
 let AppConfig = {
     workspace: getDefaultWorkspacePath(),
+    videoWorkspace: getDefaultVideoWorkspacePath(),
 };
 
 const saveAppConfig = () => {
@@ -38,10 +40,19 @@ const initAppConfig = () => {
 };
 
 export const getWorkSpace = () => AppConfig.workspace;
+export const getVideoWorkSpace = () => AppConfig.videoWorkspace;
 
 export const setWorkSpace = (filePath) => {
     console.log('setWorkSpace', filePath);
     AppConfig.workspace = filePath;
+    // 保存到文件中
+    saveAppConfig();
+    return true;
+};
+
+export const setVideoWorkSpace = (filePath) => {
+    console.log('setVideoWorkSpace', filePath);
+    AppConfig.videoWorkspace = filePath;
     // 保存到文件中
     saveAppConfig();
     return true;
@@ -101,3 +112,6 @@ initAppConfig();
 
 registHandle(HandleEvents.GET_WORKSPACE, getWorkSpace);
 registHandle(HandleEvents.SET_WORKSPACE, setWorkSpace);
+
+registHandle(HandleEvents.GET_VIDEO_WORKSPACE, getVideoWorkSpace);
+registHandle(HandleEvents.SET_VIDEO_WORKSPACE, setVideoWorkSpace);

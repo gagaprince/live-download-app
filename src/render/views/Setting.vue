@@ -18,7 +18,32 @@
               class="select-folder"
               color="#fece65"
               size="20"
-              @click="selectFolder"
+              @click="selectFolder('workspace')"
+            >
+              <Folder />
+            </el-icon>
+          </template>
+        </el-input>
+      </el-col>
+    </el-row>
+    <el-row class="workspace-setting">
+      <el-col
+        :span="3"
+        class="h-c"
+      >
+        <el-text>短视频下载目录：</el-text>
+      </el-col>
+      <el-col :span="12">
+        <el-input
+          v-model="videoWorkspace"
+          placeholder="输入或者选择短视频下载目录，并保存"
+        >
+          <template #append>
+            <el-icon
+              class="select-folder"
+              color="#fece65"
+              size="20"
+              @click="selectFolder('videoWorkspace')"
             >
               <Folder />
             </el-icon>
@@ -42,12 +67,15 @@
   </div>
 </template>
 <script>
-import { getWorkspace, setWorkspace, selectDirectory } from '@/render/common/ipcUtil';
+import {
+    getWorkspace, setWorkspace, selectDirectory, getVideoWorkspace, setVideoWorkspace,
+} from '@/render/common/ipcUtil';
 
 export default {
     data() {
         return {
             workspace: '',
+            videoWorkspace: '',
         };
     },
     mounted() {
@@ -57,21 +85,24 @@ export default {
     methods: {
         async initWorkspace() {
             const workspace = await getWorkspace();
+            const videoWorkspace = await getVideoWorkspace();
             this.workspace = workspace;
+            this.videoWorkspace = videoWorkspace;
         },
-        async selectFolder() {
+        async selectFolder(type) {
             const ret = await selectDirectory();
             console.log(ret);
             if (ret && !ret.canceled) {
                 const path = ret.filePaths[0];
                 if (path) {
-                    this.workspace = path;
+                    this[type] = path;
                 }
             }
         },
         saveConfig() {
-            const flag = setWorkspace(this.workspace);
-            if (flag) {
+            const flag1 = setWorkspace(this.workspace);
+            const flag2 = setVideoWorkspace(this.videoWorkspace);
+            if (flag1 && flag2) {
                 this.$message({
                     message: '保存成功',
 
