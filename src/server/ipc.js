@@ -22,20 +22,29 @@ const _createReplyPromise = () => {
     const replyHolder = {
         msgId,
     };
-    replyHolder.reply = new Promise((resolve) => {
+    replyHolder.reply = new Promise((resolve, reject) => {
         replyHolder.resolveFun = resolve;
+        replyHolder.rejectFun = reject;
     });
     return replyHolder;
 };
 
 
-const renderReplyList = [];
+let renderReplyList = [];
 const registRenderReply = (holder) => {
     renderReplyList.push(holder);
 };
 
 const invokeRenderReply = (arg) => {
     console.log(arg);
+    const { msgId, ret, error } = arg;
+    const holder = renderReplyList.find((ele) => ele.msgId === msgId);
+    if (error) {
+        holder.rejectFun(error);
+    } else {
+        holder.resolveFun(ret);
+    }
+    renderReplyList = renderReplyList.filter((ele) => ele.msgId !== msgId);
 };
 
 let mainWin;
