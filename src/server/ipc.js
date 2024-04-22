@@ -36,7 +36,6 @@ const registRenderReply = (holder) => {
 };
 
 const invokeRenderReply = (arg) => {
-    console.log(arg);
     const { msgId, ret, error } = arg;
     const holder = renderReplyList.find((ele) => ele.msgId === msgId);
     if (error) {

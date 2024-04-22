@@ -1,6 +1,8 @@
 import { registHandle } from '../ipc';
 import { HandleEvents } from '@/common/eventConst';
 import { getAwemeId, getVideoInfoByAwemeId } from '@/server/lib/dy/dyParser';
+import { getVideoInfoFromDLpanda } from '@/server/lib/tt/ttParser';
+import { getVideoInfoByLinkFromKs } from '@/server/lib/ks/ksParser';
 import { Download } from '@/server/download/download';
 import { getVideoWorkSpace } from '../configUtil';
 import { formatDay } from '../util/date';
@@ -30,15 +32,13 @@ async function getVideoInfoByDYLink(originLink) {
     return {};
 }
 async function getVideoInfoByTTLink(originLink) {
-    console.log(originLink);
-    // const ret = await getVideoInfoFromDLpanda(originLink);
-    // console.log(ret);
-    // return ret;
+    const ret = await getVideoInfoFromDLpanda(originLink);
+    console.log(ret);
+    return ret;
 }
 async function getVideoInfoByKSLink(originLink) {
-    console.log(originLink);
-    // const videoInfo = await getVideoInfoByLinkFromKs(originLink);
-    // return videoInfo;
+    const videoInfo = await getVideoInfoByLinkFromKs(originLink);
+    return videoInfo;
 }
 
 
@@ -79,7 +79,13 @@ export const getVideoInfoByLink = async (link) => {
             break;
         default:
     }
-    return videoInfo;
+    console.log('videoInfo:', videoInfo);
+    return {
+        user: 'tt暂时无用户信息',
+        cover: 'https://p0.meituan.net/travelcube/bef32336873e45d3350b9201ab505f7b23324.png',
+        desc: 'tt暂时无简介',
+        ...videoInfo,
+    };
 };
 
 export const downloadSmallVideoByLink = async (link) => {

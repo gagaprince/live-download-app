@@ -30,7 +30,8 @@ const initAppConfig = () => {
     const configFile = getUserConfigFile();
     try {
         fs.accessSync(configFile, fs.constants.F_OK);
-        AppConfig = JSON.parse(fs.readFileSync(configFile));
+        const readConfig = JSON.parse(fs.readFileSync(configFile));
+        AppConfig = { ...AppConfig, ...readConfig };
     } catch (err) {
     // 文件不存在 新建此文件并写入默认的配置
         const fileDir = path.dirname(configFile);

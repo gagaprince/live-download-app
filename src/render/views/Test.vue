@@ -156,10 +156,32 @@
       </el-col>
     </el-row>
   </div>
+
+  <div style="margin-top: 20px;">
+    <el-row :gutter="24">
+      <el-col :span="8">
+        <el-input
+          v-model="originVideoLink"
+          placeholder="请输入短视频原链接"
+        />
+      </el-col>
+      <el-col :span="8">
+        <el-button
+          type="primary"
+          @click="getVideoInfo"
+        >
+          测试获取videoInfo
+        </el-button>
+      </el-col>
+      <el-col :span="8">
+        videoUrl:{{ videoInfo.videoUrl || '' }}
+      </el-col>
+    </el-row>
+  </div>
 </template>
 <script>
 import {
-    anysisRoomInfo, addRoom, getttwid, getRealLink, anysisRoomInfoFromLink,
+    anysisRoomInfo, addRoom, getttwid, getRealLink, anysisRoomInfoFromLink, getVideoInfoByLink,
 } from '@/render/common/ipcUtil';
 
 import { dySign } from '@/render/common/lib/X-Bogus';
@@ -177,6 +199,8 @@ export default {
             userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1',
             oldUrl: '',
             signUrl: '',
+            originVideoLink: '',
+            videoInfo: {},
         };
     },
     methods: {
@@ -242,6 +266,11 @@ export default {
             const ret = dySign(this.oldUrl, this.userAgent);
             console.log(ret);
             this.signUrl = ret.url;
+        },
+        async getVideoInfo() {
+            const ret = await getVideoInfoByLink(this.originVideoLink);
+            this.videoInfo = ret;
+            console.log('videoInfo:', ret);
         },
     },
 };
