@@ -83,31 +83,34 @@ export const anysisRoomInfoBySecUserId = async (secUserId) => {
         if (avatar) {
             avatar = avatar.replace('.heic', '.jpeg');
         }
-        const roomDataStr = ret.aweme_list[0].author.room_data;
-        let isOnline = false;
-        let flvLink = '';
-        let roomData = {};
-        let roomId = '';
-        let roomTitle = '不重要，不获取了';
-        try {
-            if (roomDataStr) {
-                isOnline = true;
-                roomData = JSON.parse(roomDataStr);
-                // console.log('roomData:', roomData);
-                roomId = roomData.id_str;
-                const roomRealInfo = await getFlvLinkAndTitleByRoomId(roomId);
-                flvLink = roomRealInfo.flvLink;
-                roomTitle = roomRealInfo.title;
-                // const flvLinkObj = roomData.stream_url.flv_pull_url;
-                // flvLink = flvLinkObj[Object.keys(flvLinkObj)[0]];
+        if (ret.aweme_list && ret.aweme_list.length) {
+            const roomDataStr = ret.aweme_list[0].author.room_data;
+            let isOnline = false;
+            let flvLink = '';
+            let roomData = {};
+            let roomId = '';
+            let roomTitle = '不重要，不获取了';
+            try {
+                if (roomDataStr) {
+                    isOnline = true;
+                    roomData = JSON.parse(roomDataStr);
+                    // console.log('roomData:', roomData);
+                    roomId = roomData.id_str;
+                    const roomRealInfo = await getFlvLinkAndTitleByRoomId(roomId);
+                    flvLink = roomRealInfo.flvLink;
+                    roomTitle = roomRealInfo.title;
+                    // const flvLinkObj = roomData.stream_url.flv_pull_url;
+                    // flvLink = flvLinkObj[Object.keys(flvLinkObj)[0]];
+                }
+            } catch (e) {
+                console.error(e);
             }
-        } catch (e) {
-            console.error(e);
+            return {
+                secUserId, owner, avatar, flvLink, isOnline, roomId, roomTitle,
+            };
+        } else {
+            console.log('此人没有发作品，无法从个人主页查询直播信息');
         }
-
-        return {
-            secUserId, owner, avatar, flvLink, isOnline, roomId, roomTitle,
-        };
     }
     return null;
 };
@@ -128,6 +131,7 @@ export const anysisRoomInfoFromLink = async (link) => {
     console.log('要分析的链接： ', link);
     const realLink = await getRealLink(link);
     console.log('实际链接:', realLink);
+    // 这里根据 实际链接分析是个人主页还是直播链接
     const secUserId = getQueryString('sec_uid', realLink);
     const info = await anysisRoomInfoBySecUserId(secUserId);
     if (info) {

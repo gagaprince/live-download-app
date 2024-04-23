@@ -157,7 +157,7 @@
           ref="addRoomForm"
           :model="addRoomObj"
         >
-          <el-form-item label="个人主页链接">
+          <el-form-item label="个人主页或者直播链接">
             <el-input
               v-model="addRoomObj.link"
               type="textarea"
