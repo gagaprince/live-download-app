@@ -157,10 +157,11 @@
           ref="addRoomForm"
           :model="addRoomObj"
         >
-          <el-form-item label="个人主页或者直播链接">
+          <el-form-item label="链接">
             <el-input
               v-model="addRoomObj.link"
               type="textarea"
+              placeholder="请输入个人主页或者直播链接"
               :rows="3"
             />
           </el-form-item>
@@ -309,7 +310,7 @@
 <script>
 import {
     searchRoomInfos, addRoom, openLink, deleteRoom, addDownloadTask, addObserverDownload, anysisRoomInfoFromLink, anysisRoomInfoBySecUserId,
-    editRoomTypeByUserId,
+    editRoomTypeByUserId, anysisRoomInfoByRoomId,
 } from '@/render/common/ipcUtil';
 
 import { RoomTypeOpts } from '@/common/eventConst';
@@ -445,7 +446,13 @@ export default {
         },
         async checkLiveOnline(oldRoomInfo, isBatch = false) {
             console.log('检测此用户是否直播在线', oldRoomInfo.secUserId);
-            const roomInfo = await anysisRoomInfoBySecUserId(oldRoomInfo.secUserId);
+            let roomInfo;
+            if (oldRoomInfo.fromType === 'roomId') {
+                roomInfo = await anysisRoomInfoByRoomId(oldRoomInfo.roomId);
+            } else {
+                roomInfo = await anysisRoomInfoBySecUserId(oldRoomInfo.secUserId) || {};
+            }
+
             if (roomInfo.flvLink !== oldRoomInfo.flvLink) {
                 const saveFlag = await addRoom(roomInfo);
                 if (saveFlag) {

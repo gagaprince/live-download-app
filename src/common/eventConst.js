@@ -28,6 +28,7 @@ export const HandleEvents = {
     GET_REALLINK: 'get_real_link',
     ANYSIS_ROOM_INFO_FROM_CENTER: 'anysis_room_info_from_center',
     ANYSIS_ROOM_INFO_BY_SECID: 'anysis_room_info_by_secid',
+    ANYSIS_ROOM_INFO_BY_ROOMID: 'anysis_room_info_by_roomid',
     EDIT_ROOM_TYPE: 'edit_room_type_by_userid',
     GET_VIDEO_INFO: 'get_video_info',
     DOWNLOAD_SMALL_VIDEO: 'download_small_video',

@@ -115,6 +115,29 @@ export const anysisRoomInfoBySecUserId = async (secUserId) => {
     return null;
 };
 
+export const anysisRoomInfoByRoomId = async (roomId) => {
+    const roomDetailInfo = await getLiveRoomInfo(roomId);
+    if (roomDetailInfo && roomDetailInfo.status_code === 0) {
+        const { room } = roomDetailInfo.data;
+        const roomTitle = room.title;
+        const flvLinkObj = room.stream_url.flv_pull_url || {};
+        const flvLink = flvLinkObj[Object.keys(flvLinkObj)[0]];
+        const owner = room.owner.nickname || '';
+        const secUserId = room.owner.sec_uid || '';
+        const avatar = room.owner.avatar_medium.url_list[0] || '';
+        const isOnline = !!flvLink;
+        return {
+            roomTitle, flvLink, owner, secUserId, avatar, isOnline, roomId,
+        };
+    }
+    return null;
+};
+
+function parseRoomId(link) {
+    const match = link.match(/webcast\/reflow\/(\d+)/);
+    return match ? match[1] : null;
+}
+
 /**
  * @param {*} link 个人主页链接
  * @returns {
@@ -125,20 +148,43 @@ export const anysisRoomInfoBySecUserId = async (secUserId) => {
  *  roomId,
  *  flvLink,
  *  isOnline,
+ *  fromType, // 只有roomId方式的有 默认就是个人主页
  * }
  */
 export const anysisRoomInfoFromLink = async (link) => {
-    console.log('要分析的链接： ', link);
-    const realLink = await getRealLink(link);
-    console.log('实际链接:', realLink);
-    // 这里根据 实际链接分析是个人主页还是直播链接
-    const secUserId = getQueryString('sec_uid', realLink);
-    const info = await anysisRoomInfoBySecUserId(secUserId);
-    if (info) {
-        return {
-            ...info,
-            hoomLink: link,
-        };
+    try {
+        console.log('要分析的链接： ', link);
+        const realLink = await getRealLink(link);
+        console.log('实际链接:', realLink);
+        // 这里根据 实际链接分析是个人主页还是直播链接
+        if (realLink.indexOf('webcast.amemv.com') !== -1) {
+            // 是直播链接
+            // 分析roomId
+            const roomId = parseRoomId(realLink);
+            console.log('分析出roomId', roomId);
+            if (roomId) {
+                const info = await anysisRoomInfoByRoomId(roomId);
+                if (info) {
+                    return {
+                        ...info,
+                        fromType: 'roomId',
+                        hoomLink: link,
+                    };
+                }
+            }
+        } else {
+            // 是个人中心链接
+            const secUserId = getQueryString('sec_uid', realLink);
+            const info = await anysisRoomInfoBySecUserId(secUserId);
+            if (info) {
+                return {
+                    ...info,
+                    hoomLink: link,
+                };
+            }
+        }
+    } catch (e) {
+        console.error(e);
     }
     return {};
 };
@@ -230,3 +276,4 @@ registHandle(HandleEvents.GET_REALLINK, getRealLink);
 registHandle(HandleEvents.ANYSIS_ROOM_INFO_FROM_CENTER, anysisRoomInfoFromLink);
 registHandle(HandleEvents.ANYSIS_ROOM_INFO_BY_SECID, anysisRoomInfoBySecUserId);
 registHandle(HandleEvents.EDIT_ROOM_TYPE, editRoomTypeByUserId);
+registHandle(HandleEvents.ANYSIS_ROOM_INFO_BY_ROOMID, anysisRoomInfoByRoomId);

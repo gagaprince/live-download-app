@@ -92,6 +92,7 @@ export const getttwid = async () => await ipcRenderer.invoke(HandleEvents.GET_TT
 export const getRealLink = async (origin) => await ipcRenderer.invoke(HandleEvents.GET_REALLINK, origin);
 export const anysisRoomInfoFromLink = async (origin) => await ipcRenderer.invoke(HandleEvents.ANYSIS_ROOM_INFO_FROM_CENTER, origin);
 export const anysisRoomInfoBySecUserId = async (secUid) => await ipcRenderer.invoke(HandleEvents.ANYSIS_ROOM_INFO_BY_SECID, secUid);
+export const anysisRoomInfoByRoomId = async (roomId) => await ipcRenderer.invoke(HandleEvents.ANYSIS_ROOM_INFO_BY_ROOMID, roomId);
 export const editRoomTypeByUserId = async (roomType, secUserId) => await ipcRenderer.invoke(HandleEvents.EDIT_ROOM_TYPE, roomType, secUserId);
 
 export const getVideoInfoByLink = async (link) => await ipcRenderer.invoke(HandleEvents.GET_VIDEO_INFO, link);

@@ -1,6 +1,6 @@
 import { isDownloading } from '../download/downloadTaskManager';
 import { addDownloadTaskByUserId } from '../download/index';
-import { anysisRoomInfoBySecUserId, addRoom } from './addRoom';
+import { anysisRoomInfoBySecUserId, addRoom, anysisRoomInfoByRoomId } from './addRoom';
 import { selectRoomByUserId } from './selectRoom';
 import { registHandle } from '../ipc';
 import { HandleEvents } from '@/common/eventConst';
@@ -63,14 +63,24 @@ class ObserverTask {
     }
 
     async checkIsOnline() {
-        console.log(`${this.roomInfo.owner} checkIsOnline`);
-        global.logRender(`${this.roomInfo.owner} checkIsOnline`);
-        const ret = await anysisRoomInfoBySecUserId(this.roomInfo.secUserId);
-        global.logRender(`${this.roomInfo.owner} ret.isOnline: ${ret.isOnline}`);
-        if (ret.isOnline) {
-            addRoom(ret);
-            this.roomInfo = ret;
-            return true;
+        try {
+            console.log(`${this.roomInfo.owner} checkIsOnline`);
+            global.logRender(`${this.roomInfo.owner} checkIsOnline`);
+            const fromType = this.roomInfo.fromType || 'center';
+            let ret;
+            if (fromType === 'roomId') {
+                ret = await anysisRoomInfoByRoomId(this.roomInfo.roomId);
+            } else {
+                ret = await anysisRoomInfoBySecUserId(this.roomInfo.secUserId);
+            }
+            global.logRender(`${this.roomInfo.owner} ret.isOnline: ${ret.isOnline}`);
+            if (ret.isOnline) {
+                addRoom(ret);
+                this.roomInfo = ret;
+                return true;
+            }
+        } catch (e) {
+            console.error(e);
         }
         return false;
     }
