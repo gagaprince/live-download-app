@@ -119,13 +119,19 @@ export const anysisRoomInfoByRoomId = async (roomId) => {
     const roomDetailInfo = await getLiveRoomInfo(roomId);
     if (roomDetailInfo && roomDetailInfo.status_code === 0) {
         const { room } = roomDetailInfo.data;
+        const replaceRoomId = room.owner.own_room.room_ids_str[0];
+        if ((`${roomId}`) !== (`${replaceRoomId}`)) {
+            // 有roomId的切换 递归返回数据
+            return await anysisRoomInfoByRoomId(replaceRoomId);
+        }
         const roomTitle = room.title;
         const flvLinkObj = room.stream_url.flv_pull_url || {};
         const flvLink = flvLinkObj[Object.keys(flvLinkObj)[0]];
         const owner = room.owner.nickname || '';
         const secUserId = room.owner.sec_uid || '';
         const avatar = room.owner.avatar_medium.url_list[0] || '';
-        const isOnline = !!flvLink;
+        console.log('anysisRoomInfoByRoomId status:', room.status);
+        const isOnline = room.status === 2;
         return {
             roomTitle, flvLink, owner, secUserId, avatar, isOnline, roomId,
         };

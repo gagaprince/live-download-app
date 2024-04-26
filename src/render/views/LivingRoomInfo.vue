@@ -445,13 +445,16 @@ export default {
             this.addRoomModalFlag = false;
         },
         async checkLiveOnline(oldRoomInfo, isBatch = false) {
-            console.log('检测此用户是否直播在线', oldRoomInfo.secUserId);
+            console.log('检测此用户是否直播在线', oldRoomInfo);
             let roomInfo;
             if (oldRoomInfo.fromType === 'roomId') {
+                console.log('anysisRoomInfoByRoomId', oldRoomInfo.roomId);
                 roomInfo = await anysisRoomInfoByRoomId(oldRoomInfo.roomId);
             } else {
                 roomInfo = await anysisRoomInfoBySecUserId(oldRoomInfo.secUserId) || {};
             }
+
+            console.log('newRoominfo:', roomInfo);
 
             if (roomInfo.flvLink !== oldRoomInfo.flvLink) {
                 const saveFlag = await addRoom(roomInfo);
