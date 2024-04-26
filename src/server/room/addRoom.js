@@ -119,7 +119,12 @@ export const anysisRoomInfoByRoomId = async (roomId) => {
     const roomDetailInfo = await getLiveRoomInfo(roomId);
     if (roomDetailInfo && roomDetailInfo.status_code === 0) {
         const { room } = roomDetailInfo.data;
-        const replaceRoomId = room.owner.own_room.room_ids_str[0];
+        let replaceRoomId = roomId;
+        try {
+            replaceRoomId = room.owner.own_room.room_ids_str[0];
+        } catch (e) {
+            console.error(e);
+        }
         if ((`${roomId}`) !== (`${replaceRoomId}`)) {
             // 有roomId的切换 递归返回数据
             return await anysisRoomInfoByRoomId(replaceRoomId);
