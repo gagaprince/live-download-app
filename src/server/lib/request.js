@@ -22,6 +22,7 @@ export const request = ({
             }
         }
         return {
+            httpCode: ret.statusCode,
             data: ret.body,
             headers: ret.headers,
         };

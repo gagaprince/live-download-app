@@ -3,6 +3,7 @@ import { HandleEvents } from '@/common/eventConst';
 import { getAwemeId, getVideoInfoByAwemeId } from '@/server/lib/dy/dyParser';
 import { getVideoInfoFromDLpanda } from '@/server/lib/tt/ttParser';
 import { getVideoInfoByLinkFromKs } from '@/server/lib/ks/ksParser';
+import { getVideoInfoByXHSLink } from '@/server/lib/xhs/xhsParser';
 import { Download } from '@/server/download/download';
 import { getVideoWorkSpace } from '../configUtil';
 import { formatDay } from '../util/date';
@@ -53,6 +54,8 @@ function checkPL(link = '') {
         return 'tt';
     } else if (link.indexOf('kuaishou') !== -1) {
         return 'ks';
+    } else if (link.indexOf('xhslink') !== -1) {
+        return 'xhs';
     }
 
     return 'none';
@@ -76,6 +79,9 @@ export const getVideoInfoByLink = async (link) => {
             break;
         case 'ks':
             videoInfo = await getVideoInfoByKSLink(link);
+            break;
+        case 'xhs':
+            videoInfo = await getVideoInfoByXHSLink(link);
             break;
         default:
     }
