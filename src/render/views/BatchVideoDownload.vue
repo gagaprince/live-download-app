@@ -179,7 +179,7 @@ export default {
         },
         batchDownloadComplete() {
             this.$message({
-                message: '批量检测完成',
+                message: '下载完毕',
                 type: 'success',
             });
             this.batchDownloadFlag = false;
