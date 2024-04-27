@@ -98,30 +98,59 @@ export const downloadSmallVideoByLink = async (link) => {
     const info = await getVideoInfoByLink(link);
     if (info) {
         console.log(info);
-        const { videoUrl, user } = info;
-
+        const {
+            videoUrl, user, type = 'video', images = [],
+        } = info;
         const fileDir = path.resolve(getVideoWorkSpace(), formatDay(), user);
-        const filePath = path.resolve(fileDir, `${Date.now()}.mp4`);
-        // 下载
-        const ret = await new Promise((res) => {
-            if (!fs.existsSync(fileDir)) {
-                fs.mkdirSync(fileDir, { recursive: true }); // recursive选项确保创建嵌套目录
-            }
-            const downloader = new Download({
-                url: videoUrl,
-                filePath,
-                success: () => {
-                    res(filePath);
-                },
-                fail: (e) => {
-                    console.log(`Error: ${e}`);
-                    res('');
-                },
+        if (type === 'video') {
+            const filePath = path.resolve(fileDir, `${Date.now()}.mp4`);
+            // 下载
+            const ret = await new Promise((res) => {
+                if (!fs.existsSync(fileDir)) {
+                    fs.mkdirSync(fileDir, { recursive: true }); // recursive选项确保创建嵌套目录
+                }
+                const downloader = new Download({
+                    url: videoUrl,
+                    filePath,
+                    success: () => {
+                        res(filePath);
+                    },
+                    fail: (e) => {
+                        console.log(`Error: ${e}`);
+                        res('');
+                    },
+                });
+                downloader.startDownload();
             });
-            downloader.startDownload();
-        });
-        info.fileDir = fileDir;
-        info.filePath = ret;
+            info.fileDir = fileDir;
+            info.filePath = ret;
+        } else {
+            // 下载图片
+            let ret = '';
+            const time = Date.now();
+            for (let i = 0; i < images.length; i++) {
+                const filePath = path.resolve(fileDir, `${time}_${i}.png`);
+                ret = await new Promise((res) => {
+                    if (!fs.existsSync(fileDir)) {
+                        fs.mkdirSync(fileDir, { recursive: true }); // recursive选项确保创建嵌套目录
+                    }
+                    const downloader = new Download({
+                        url: images[i],
+                        filePath,
+                        success: () => {
+                            res(filePath);
+                        },
+                        fail: (e) => {
+                            console.log(`Error: ${e}`);
+                            res('');
+                        },
+                    });
+                    downloader.startDownload();
+                });
+            }
+            info.fileDir = fileDir;
+            info.filePath = ret;
+        }
     }
     return info;
 };

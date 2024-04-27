@@ -129,30 +129,66 @@ const parseUser = (initData) => {
     }
     return '';
 };
-const parseDesc = (initData) => {
-    const text = initData;
-    const pattern = /"video","title":"(.*?)","desc"/;
-    const match = text.match(pattern);
-
+const parseDesc = (html) => {
+    const regex = /<meta name="og:title" content="(.*?)">/;
+    const match = html.match(regex);
     if (match) {
-        console.log(match[1]);
+        console.log(match[1]); // 输出: 那些拍不出第二次的人生瞬间 - 小红书
+        return match[1];
+    }
+    return '';
+    // <meta name="og:title" content="那些拍不出第二次的人生瞬间 - 小红书"></meta>
+};
+
+const parseType = (html) => {
+    const regex = /<meta name="og:type" content="(.*?)">/;
+    const match = html.match(regex);
+    if (match) {
+        console.log(match[1]); // 输出: 那些拍不出第二次的人生瞬间 - 小红书
         return match[1];
     }
     return '';
 };
 
+const parseImages = (html) => {
+    const regex = /<meta name="og:image" content="(.*?)">/g;
+    let matches;
+    let images = [];
+    matches = regex.exec(html);
+    while (matches !== null) {
+        images.push(matches[1]);
+        matches = regex.exec(html);
+    }
+    images = images.map((img) => {
+        const regex1 = /\/([a-zA-Z0-9]+)!/;
+
+        const match1 = img.match(regex1);
+
+        if (match1) {
+            return `https://sns-img-qc.xhscdn.com/${match1[1]}?imageView2/2/w/format/png`;
+        }
+        return img;
+    });
+    return images;
+};
 
 export const getVideoInfoByXHSLink = async (link) => {
     const realLink = await getXHSRealLink(link);
     console.log(realLink);
     const html = await getHtmlFromLink(realLink);
-    // console.log(html);
+    const type = parseType(html);
     const initData = parseInitData(html);
-    const videoUrl = parseVideoUrl(initData);
+    let videoUrl = '';
+    let images = [];
+    if (type === 'video') {
+        videoUrl = parseVideoUrl(initData);
+    } else {
+        images = parseImages(html);
+    }
     const cover = parseCover(initData);
     const user = parseUser(initData);
-    // const desc = parseDesc(initData);
+    const desc = parseDesc(html);
     return {
-        videoUrl, cover, user,
+        videoUrl, cover, user, type, desc, images,
     };
 };
