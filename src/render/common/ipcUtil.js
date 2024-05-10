@@ -96,6 +96,6 @@ export const anysisRoomInfoByRoomId = async (roomId) => await ipcRenderer.invoke
 export const editRoomTypeByUserId = async (roomType, secUserId) => await ipcRenderer.invoke(HandleEvents.EDIT_ROOM_TYPE, roomType, secUserId);
 
 export const getVideoInfoByLink = async (link) => await ipcRenderer.invoke(HandleEvents.GET_VIDEO_INFO, link);
-export const downloadSmallVideoByLink = async (link) => await ipcRenderer.invoke(HandleEvents.DOWNLOAD_SMALL_VIDEO, link);
+export const downloadSmallVideoByLink = async (link, options) => await ipcRenderer.invoke(HandleEvents.DOWNLOAD_SMALL_VIDEO, link, options);
 
 export const openDevTool = async () => await ipcRenderer.invoke(HandleEvents.OPEN_DEV_TOOLS);

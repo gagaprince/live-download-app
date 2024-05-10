@@ -178,6 +178,16 @@
       </el-col>
     </el-row>
   </div>
+  <div style="margin-top: 20px;">
+    <el-row :gutter="24">
+      <el-col :span="24">
+        <verifyFrame
+          v-if="verifyLink"
+          :verify-link="verifyLink"
+        />
+      </el-col>
+    </el-row>
+  </div>
 </template>
 <script>
 import {
@@ -185,8 +195,12 @@ import {
 } from '@/render/common/ipcUtil';
 
 import { dySign } from '@/render/common/lib/X-Bogus';
+import verifyFrame from '@/render/components/verifyFrame/index.vue';
 
 export default {
+    components: {
+        verifyFrame,
+    },
     data() {
         return {
             roomInfo: {},
@@ -201,6 +215,7 @@ export default {
             signUrl: '',
             originVideoLink: '',
             videoInfo: {},
+            verifyLink: '',
         };
     },
     methods: {
@@ -271,6 +286,14 @@ export default {
             const ret = await getVideoInfoByLink(this.originVideoLink);
             this.videoInfo = ret;
             console.log('videoInfo:', ret);
+            if (ret.code === 123) {
+                this.showVerify(ret.data.verifyUrl);
+                // this.showVerify('https://rmc.bytedance.com/verifycenter/captcha/v2?from=iframe&fp=verify_lw04plx5_7f29059d_3fce_5c66_51de_c72db3bb9936&env=%7B%22screen%22%3A%7B%22w%22%3A1728%2C%22h%22%3A1117%7D%2C%22browser%22%3A%7B%22w%22%3A1728%2C%22h%22%3A997%7D%2C%22page%22%3A%7B%22w%22%3A298%2C%22h%22%3A910%7D%2C%22document%22%3A%7B%22width%22%3A298%7D%2C%22product_host%22%3A%22www.douyin.com%22%2C%22vc_version%22%3A%221.0.0.60%22%2C%22maskTime%22%3A1715312185635%2C%22h5_check_version%22%3A%223.8.6%22%7D&aid=6383&host=%2F%2Fverify.zijieapi.com%2F&verify_data=%7B%22code%22%3A%2210000%22%2C%22from%22%3A%22%22%2C%22type%22%3A%22verify%22%2C%22version%22%3A%22%22%2C%22region%22%3A%22cn%22%2C%22subtype%22%3A%22slide%22%2C%22ui_type%22%3A%22%22%2C%22detail%22%3A%22y3c1v0Gdq1Gt0vlfQW*gQ8kROBCa5WM5TEwIyAi1LBHsdCSCPUnO7YJW0KRU7uklJ5VUpCA8xoeiKcb7AYJS9yrGCJN*hRCmg9xearxeT37qqH7H7KscL7wl8LAaKVw6*S4OwZaa0nOWX2U*7xfZqMZRmDaOKBJJD8COGWOLvVFs1LP0lLNQrulQx0ttnAj7rYivwxM6xS8d6p5LnjtnpNaB-2KownO4skjEpXF9imyq*P9LRE6LSD8M4EdwlMC3iH-gEHyfGeu6Lz4o-vbYaUyMRmhFTEYUqwbSR7lgOLsmsj7ayQTJ6zCoFraj24jvrJ32vferhzTPp*yb59SUNYc7qPgVRrJbCIIC4Z7BvEmQLMZ5qAQNyz2bIdsw2eREEBwhfU*fg9WXHmoUdVR8KJ42b33-4tBxyEoE9HXK1ixp7kPA-pueoqM1qguMCYhl0x3H5T*5YikL6c*8qCillQtu1DmflURccdY0%22%2C%22verify_event%22%3A%226120%22%2C%22fp%22%3A%22verify_lw04l50y_0078ea0c_c536_246b_2c6f_614a87ac2994%22%2C%22server_sdk_env%22%3A%22%7B%5C%22idc%5C%22%3A%5C%22lf%5C%22%2C%5C%22region%5C%22%3A%5C%22CN%5C%22%2C%5C%22server_type%5C%22%3A%5C%22whale%5C%22%7D%22%2C%22log_id%22%3A%222024051011362585D6073037D5B6043AAF%22%2C%22is_assist_mobile%22%3Afalse%2C%22is_complex_sms%22%3Afalse%2C%22identity_action%22%3A%22%22%2C%22identity_scene%22%3A%22%22%2C%22login_status%22%3A0%2C%22aid%22%3A0%7D');
+                console.log('fp:', ret.data.fp);
+            }
+        },
+        showVerify(verifyLink) {
+            this.verifyLink = verifyLink;
         },
     },
 };

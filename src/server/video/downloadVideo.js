@@ -15,9 +15,13 @@ const fs = require('fs');
 
 
 // 获取短视频内容
-async function getVideoInfoByDYLink(originLink) {
+async function getVideoInfoByDYLink(originLink, options) {
     const awemeId = await getAwemeId(originLink);
-    const videoInfo = await getVideoInfoByAwemeId(awemeId);
+    const videoInfo = await getVideoInfoByAwemeId(awemeId, options);
+    if (videoInfo.code === 123) {
+        // 需要验证
+        return videoInfo;
+    }
     try {
         const videoUrl = videoInfo.aweme_detail.video.play_addr.url_list[0] || '';
         const cover = videoInfo.aweme_detail.video.cover.url_list[0] || '';
@@ -68,11 +72,11 @@ function checkPL(link = '') {
  *  videoUrl, cover, user, desc
  * }
  */
-export const getVideoInfoByLink = async (link) => {
+export const getVideoInfoByLink = async (link, options) => {
     let videoInfo;
     switch (checkPL(link)) {
         case 'dy':
-            videoInfo = await getVideoInfoByDYLink(link);
+            videoInfo = await getVideoInfoByDYLink(link, options);
             break;
         case 'tt':
             videoInfo = await getVideoInfoByTTLink(link);
@@ -94,8 +98,8 @@ export const getVideoInfoByLink = async (link) => {
     };
 };
 
-export const downloadSmallVideoByLink = async (link) => {
-    const info = await getVideoInfoByLink(link);
+export const downloadSmallVideoByLink = async (link, options = {}) => {
+    const info = await getVideoInfoByLink(link, options);
     if (info) {
         console.log(info);
         const {

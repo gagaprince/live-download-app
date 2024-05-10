@@ -94,10 +94,56 @@
         </el-text>
         <div style="margin-top:20px;">
           <TaskListComponent
+            v-if="batchDownloadFlag"
             :tasks="batchTasks"
             @complete="batchDownloadComplete"
           />
         </div>
+      </el-dialog>
+    </div>
+    <div>
+      <el-dialog
+        v-model="verifyDialogFlag"
+        style="width:600px;"
+      >
+        <el-row
+          :gutter="24"
+          type="flex"
+          justify="center"
+        >
+          <el-text
+            class="mx-1"
+            type="primary"
+          >
+            需要您验证后重试
+          </el-text>
+        </el-row>
+        <el-row
+          :gutter="24"
+          type="flex"
+          justify="center"
+        >
+          <verifyFrame
+            v-if="verifyLink"
+            :verify-link="verifyLink"
+          />
+        </el-row>
+        <el-row :gutter="24">
+          <el-col :span="8" />
+          <el-col :span="12">
+            <el-form-item style="justify-content:center;">
+              <el-button
+                type="primary"
+                @click="hideVerifyDialog(true)"
+              >
+                确认
+              </el-button>
+              <el-button @click="hideVerifyDialog(false)">
+                取消
+              </el-button>
+            </el-form-item>
+          </el-col>
+        </el-row>
       </el-dialog>
     </div>
   </div>
@@ -108,11 +154,12 @@ import {
 } from '@/render/common/ipcUtil';
 
 import TaskListComponent from '@/render/components/tasklist/index.vue';
-
+import verifyFrame from '@/render/components/verifyFrame/index.vue';
 
 export default {
     components: {
         TaskListComponent,
+        verifyFrame,
     },
     data() {
         return {
@@ -123,6 +170,8 @@ export default {
             batchDownloadFlag: false,
             batchTasks: [],
             videoInfos: [],
+            verifyDialogFlag: false,
+            verifyLink: '',
         };
     },
     mounted() {
@@ -163,27 +212,72 @@ export default {
 
         batchDownload(links) {
             console.log('批量下载:', links);
+            const fp = window.localStorage.getItem('dy_fp') || '';
             const tasks = links.map((linkContent) => async () => {
+                if (!linkContent) return;
                 console.log('-------------------------------');
                 console.log(`当前要解析${linkContent}`);
                 const link = this._getRealLink(linkContent);
                 console.log(`获取实际链接${link}`);
                 // const videoInfo = await getVideoInfoByLink(link);
-                const videoInfo = await downloadSmallVideoByLink(link);
-                console.log('视频信息:', videoInfo);
-                this.videoInfos.push(videoInfo);
+                const videoInfo = await downloadSmallVideoByLink(link, { fp });
+                const flag = this.checkVideoInfoVerify(videoInfo);
+                if (flag) {
+                    if (videoInfo && videoInfo.videoUrl) {
+                        console.log('视频信息:', videoInfo);
+                        this.videoInfos.push(videoInfo);
+                    }
+                }
                 console.log('-------------------------------');
             });
             this.batchTasks = tasks;
             this.batchDownloadFlag = true;
         },
         batchDownloadComplete() {
-            this.$message({
-                message: '下载完毕',
-                type: 'success',
-            });
             this.batchDownloadFlag = false;
             this.batchTasks = [];
+            if (!this.videoInfos.length) {
+                this.$message({
+                    message: '下载中有报错请稍后重试',
+                    type: 'error',
+                });
+            } else {
+                this.$message({
+                    message: '下载完毕',
+                    type: 'success',
+                });
+            }
+        },
+
+        checkVideoInfoVerify(videoInfo) {
+            if (videoInfo.code === 123) {
+                this.showVerifyDialog(videoInfo.data || {});
+                return false;
+            }
+            return true;
+        },
+
+        showVerifyDialog(verifyData) {
+            if (this.verifyDialogFlag) return;
+            console.log('showVerifyDialog', verifyData);
+            const { verifyUrl } = verifyData;
+            this.verifyData = verifyData;
+            if (verifyUrl) {
+                this.verifyLink = verifyUrl;
+                this.verifyDialogFlag = true;
+            }
+        },
+        hideVerifyDialog(flag) {
+            console.log('hideVerifyDialog', flag);
+            this.verifyLink = '';
+            this.verifyDialogFlag = false;
+            if (flag) {
+                // 保存 fp
+                console.log('save fp:', this.verifyData);
+                const { fp } = this.verifyData;
+                console.log(fp);
+                window.localStorage.setItem('dy_fp', fp);
+            }
         },
 
     },
