@@ -5,6 +5,13 @@ import { dySign } from './X-Bogus';
 
 
 let ttwidCache = '';
+let ttwidPromise;
+
+(function initTtwidTimer() {
+    setInterval(() => {
+        ttwidCache = '';
+    }, 1000 * 60 * 30);
+}());
 
 function parseTtwidFromCookie(cookies) {
     console.log(cookies);
@@ -34,9 +41,12 @@ function getMsToken() {
 }
 
 export const getttwid = async (force = false) => {
+    if (ttwidPromise) {
+        await ttwidPromise;
+    }
     if (!ttwidCache || force) {
         try {
-            const ret = await request({
+            ttwidPromise = request({
                 url: 'https://ttwid.bytedance.com/ttwid/union/register/',
                 method: 'POST',
                 data: {
@@ -50,6 +60,7 @@ export const getttwid = async (force = false) => {
                     'accept-language': 'zh-Hans-CN;q=1, en-CN;q=0.9, zh-Hant-CN;q=0.8',
                 },
             });
+            const ret = await ttwidPromise;
             const headers = ret.headers || {};
             const cookies = headers['set-cookie'] || '';
             ttwidCache = parseTtwidFromCookie(cookies);
