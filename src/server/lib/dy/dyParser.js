@@ -10,7 +10,7 @@ let ttwidPromise;
 (function initTtwidTimer() {
     setInterval(() => {
         ttwidCache = '';
-    }, 1000 * 60 * 30);
+    }, 1000 * 60 * 10);
 }());
 
 function parseTtwidFromCookie(cookies) {
