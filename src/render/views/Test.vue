@@ -194,7 +194,7 @@ import {
     anysisRoomInfo, addRoom, getttwid, getRealLink, anysisRoomInfoFromLink, getVideoInfoByLink,
 } from '@/render/common/ipcUtil';
 
-import { dySign } from '@/render/common/lib/X-Bogus';
+import { dySignNew } from '@/render/common/lib/a_bogus';
 import verifyFrame from '@/render/components/verifyFrame/index.vue';
 
 export default {
@@ -278,7 +278,7 @@ export default {
             console.log(ret);
         },
         getSignUrl() {
-            const ret = dySign(this.oldUrl, this.userAgent);
+            const ret = dySignNew(this.oldUrl, this.userAgent);
             console.log(ret);
             this.signUrl = ret.url;
         },

@@ -111,6 +111,15 @@ export const xbogusSign = async (url, agent) => {
     console.log(ret);
 };
 
+export const abogusSign = async (url, agent) => {
+    const ret = await invokeRenderMethod({
+        methodName: 'abogusSign',
+        args: [url, agent],
+    });
+    console.log('abogusSign', ret);
+    return ret;
+};
+
 global.logRender = async (...args) => {
     await invokeRenderMethod({
         methodName: 'logRender',

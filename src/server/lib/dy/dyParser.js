@@ -1,7 +1,8 @@
 
 import { request } from '../request';
 import { dySign } from './X-Bogus';
-// import { xbogusSign } from '@/server/ipc';s
+// import { xbogusSign } from '@/server/ipc';
+import { abogusSign } from '@/server/ipc';
 
 
 let ttwidCache = '';
@@ -138,6 +139,7 @@ const getVerifyData = async () => {
 export const getVideoInfoByAwemeId = async (awemeId, options) => {
     const { fp } = options;
     const ttwid = await getttwid();
+    // const ttwid = '1%7CCJjuh0x7IeBL9gs7l4Do7PZ2zN4EN6zFfSP2xYl_Ty8%7C1718188993%7C83c22a2d0aeb5343014f767a3dbc1ac714bc379198a69ec8471cd7efdfee10c5';
     const msToken = getMsToken();
     let cookie = `msToken=${msToken};ttwid=${ttwid};`;
     if (fp) {
@@ -151,10 +153,11 @@ export const getVideoInfoByAwemeId = async (awemeId, options) => {
         'accept-language': 'zh-Hans-CN;q=1, en-CN;q=0.9, zh-Hant-CN;q=0.8',
         referer: 'https://www.douyin.com/',
     };
-    const url = `https://www.douyin.com/aweme/v1/web/aweme/detail/?aweme_id=${awemeId}&aid=1128&version_name=23.5.0&device_platform=android&os_version=2333`;
+    // const url = `https://www.douyin.com/aweme/v1/web/aweme/detail/?aweme_id=${awemeId}&aid=1128&version_name=23.5.0&device_platform=android&os_version=2333`;
+    const url = `https://www.douyin.com/aweme/v1/web/aweme/detail/?device_platform=webapp&aid=6383&channel=channel_pc_web&aweme_id=${awemeId}&update_version_code=170400&pc_client_type=1&version_code=190500&version_name=19.5.0&cookie_enabled=true&screen_width=1728&screen_height=1117&browser_language=zh-CN&browser_platform=MacIntel&browser_name=Chrome&browser_version=125.0.0.0&browser_online=true&engine_name=Blink&engine_version=125.0.0.0&os_name=Mac+OS&os_version=10.15.7&cpu_core_num=12&device_memory=8&platform=PC&downlink=10&effective_type=4g&round_trip_time=50`;
 
     try {
-        const bogusObj = await dySign(url, headers['user-agent']);
+        const bogusObj = await abogusSign(url, headers['user-agent']);
         const newUrl = bogusObj.url;
         console.log('newUrl:', newUrl);
         const ret = await request({
