@@ -1,5 +1,7 @@
 import { Event, HandleEvents, RenderReceiveEvents } from '@/common/eventConst';
 
+const { URL } = require('url');
+
 const { ipcMain } = require('electron');
 
 const controllerMap = {};
@@ -120,9 +122,64 @@ export const abogusSign = async (url, agent) => {
     return ret;
 };
 
+
+// 监听网页逻辑
+const verifyFpChanglist = [];
+export const invokeVerifyLink = (link) => {
+    // 获取verifyFp
+    const url = new URL(link);
+    // 使用URLSearchParams获取查询参数
+    const params = new URLSearchParams(url.search);
+    const verifyFp = params.get('fp');
+    // 触发渲染层展示验证码
+    invokeRenderMethod({
+        methodName: 'renderVerifyLink',
+        args: [link, verifyFp],
+    });
+
+    // 触发verifyFpChang事件
+    verifyFpChanglist.forEach((lis) => {
+        if (lis) {
+            lis(verifyFp);
+        }
+    });
+};
+
+
+export const addVerifyFpChangeListener = (lis) => {
+    verifyFpChanglist.push(lis);
+};
+
+let sessionCache;
+export const initNetworkListener = (session) => {
+    sessionCache = session;
+    session.webRequest.onBeforeRequest({
+        urls: [
+            'https://www.douyin.com/video/*',
+            'https://rmc.bytedance.com/verifycenter/*',
+        ],
+    }, (details, callback) => {
+        console.log('URL:', details.url); // 打印获取到的URL
+        if (details.url.indexOf('https://rmc.bytedance.com/') === 0) {
+            invokeVerifyLink(details.url);
+        }
+        callback({ cancel: false });
+    });
+};
+
 global.logRender = async (...args) => {
     await invokeRenderMethod({
         methodName: 'logRender',
         args: [...args],
     });
 };
+
+export const clearCookie = async () => {
+    if (sessionCache) {
+        await sessionCache.clearStorageData({
+            storages: ['cookies'],
+        });
+    }
+};
+
+registHandle(HandleEvents.CLEAR_COOKIE, clearCookie);

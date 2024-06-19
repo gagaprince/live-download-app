@@ -33,6 +33,7 @@ export const HandleEvents = {
     GET_VIDEO_INFO: 'get_video_info',
     DOWNLOAD_SMALL_VIDEO: 'download_small_video',
     OPEN_DEV_TOOLS: 'open_dev_tools',
+    CLEAR_COOKIE: 'clear_cookie',
 };
 
 export const RenderReceiveEvents = {

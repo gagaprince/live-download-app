@@ -30,6 +30,19 @@
         </el-button>
       </el-col>
     </el-row>
+    <el-row :gutter="20">
+      <el-col
+        :span="24"
+        style="position: absolute; top:-10000px;"
+      >
+        <webview
+          v-if="webviewsrc"
+          ref="webviewRef"
+          :src="webviewsrc"
+          class="webview"
+        />
+      </el-col>
+    </el-row>
     <div class="line" />
     <div>
       <el-table
@@ -150,8 +163,12 @@
 </template>
 <script>
 import {
-    openDirectory, getVideoWorkspace, downloadSmallVideoByLink,
+    openDirectory, getVideoWorkspace, downloadSmallVideoByLink, clearCookie,
 } from '@/render/common/ipcUtil';
+import {
+    addNeedShowVerifyLinkListener,
+} from '@/render/common/ipcMethods';
+
 
 import TaskListComponent from '@/render/components/tasklist/index.vue';
 import verifyFrame from '@/render/components/verifyFrame/index.vue';
@@ -172,6 +189,7 @@ export default {
             videoInfos: [],
             verifyDialogFlag: false,
             verifyLink: '',
+            webviewsrc: '',
         };
     },
     mounted() {
@@ -180,6 +198,7 @@ export default {
     methods: {
         async init() {
             this.downloadPath = await getVideoWorkspace();
+            addNeedShowVerifyLinkListener(this.showVerifyDialog.bind(this));
         },
         _getRealLink(content) {
             const contentReg = new RegExp(/.*?([a-zA-z]+:\/\/[^\s]*)\s{0,}.*?/g);
@@ -220,7 +239,7 @@ export default {
                 const link = this._getRealLink(linkContent);
                 console.log(`获取实际链接${link}`);
                 // const videoInfo = await getVideoInfoByLink(link);
-                const videoInfo = await downloadSmallVideoByLink(link, { fp });
+                const videoInfo = await downloadSmallVideoByLink(link, { fp, link });
                 const flag = this.checkVideoInfoVerify(videoInfo);
                 if (flag) {
                     if (videoInfo && videoInfo.videoUrl) {
@@ -249,34 +268,39 @@ export default {
             }
         },
 
-        checkVideoInfoVerify(videoInfo) {
+        async checkVideoInfoVerify(videoInfo) {
             if (videoInfo.code === 123) {
-                this.showVerifyDialog(videoInfo.data || {});
+                // 触发webview打开链接
+                if (!this.webviewsrc) {
+                    await clearCookie();
+                    this.webviewsrc = videoInfo.data.link;
+                }
+                this.$message({
+                    message: '需要您来验证链接，请稍后',
+                    type: 'success',
+                });
                 return false;
             }
             return true;
         },
 
-        showVerifyDialog(verifyData) {
+        showVerifyDialog(verifyUrl, fp) {
             if (this.verifyDialogFlag) return;
-            console.log('showVerifyDialog', verifyData);
-            const { verifyUrl } = verifyData;
-            this.verifyData = verifyData;
             if (verifyUrl) {
                 this.verifyLink = verifyUrl;
+                this.fp = fp;
                 this.verifyDialogFlag = true;
             }
         },
         hideVerifyDialog(flag) {
             console.log('hideVerifyDialog', flag);
             this.verifyLink = '';
+            this.webviewsrc = '';
             this.verifyDialogFlag = false;
             if (flag) {
                 // 保存 fp
-                console.log('save fp:', this.verifyData);
-                const { fp } = this.verifyData;
-                console.log(fp);
-                window.localStorage.setItem('dy_fp', fp);
+                console.log('save fp:', this.fp);
+                window.localStorage.setItem('dy_fp', this.fp);
             }
         },
 

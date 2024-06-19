@@ -52,6 +52,12 @@
         </el-button>
         <el-button
           type="primary"
+          @click="getVerifyLink"
+        >
+          获取验证链接
+        </el-button>
+        <el-button
+          type="primary"
           @click="parseLiveLink"
         >
           获取直播链接 并添加
@@ -194,6 +200,10 @@ import {
     anysisRoomInfo, addRoom, getttwid, getRealLink, anysisRoomInfoFromLink, getVideoInfoByLink,
 } from '@/render/common/ipcUtil';
 
+import {
+    addNeedShowVerifyLinkListener,
+} from '@/render/common/ipcMethods';
+
 import { dySignNew } from '@/render/common/lib/a_bogus';
 import verifyFrame from '@/render/components/verifyFrame/index.vue';
 
@@ -218,6 +228,9 @@ export default {
             verifyLink: '',
         };
     },
+    mounted() {
+        addNeedShowVerifyLinkListener(this.showVerify.bind(this));
+    },
     methods: {
         async handleAnysis() {
             const ret = await anysisRoomInfo('https://live.douyin.com/50338791669');
@@ -231,9 +244,10 @@ export default {
         openWebview() {
             console.log('打开webview：', this.webviewLink);
             this.webviewsrc = this.webviewLink;
-            setTimeout(() => {
-                this.parseLiveLink();
-            }, 5000);
+        },
+        getVerifyLink() {
+            // const webview = this.$refs.webviewRef;
+            console.log('getVerifyLink');
         },
         parseLiveLink() {
             const webview = this.$refs.webviewRef;

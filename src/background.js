@@ -5,7 +5,7 @@ import {
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib';
 import installExtension, { VUEJS3_DEVTOOLS } from 'electron-devtools-installer';
 import {
-    initIpc, updateRoomInfos, initObserverRoom, registHandle,
+    initIpc, updateRoomInfos, initObserverRoom, registHandle, initNetworkListener,
 } from '@/server/index';
 
 import { HandleEvents } from '@/common/eventConst';
@@ -39,10 +39,20 @@ async function createWindow() {
             webviewTag: true,
         },
     });
+    const ses = win.webContents.session;
+
+    // 清除所有 Cookie
+    await ses.clearStorageData({
+        storages: ['cookies'],
+    });
+
+    initNetworkListener(ses);
+
+
     initIpc(win);
 
     if (process.env.WEBPACK_DEV_SERVER_URL) {
-    // Load the url of the dev server if in development mode
+        // Load the url of the dev server if in development mode
         await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL);
         if (!process.env.IS_TEST) win.webContents.openDevTools();
     } else {
@@ -87,7 +97,7 @@ app.on('activate', () => {
 // Some APIs can only be used after this event occurs.
 app.on('ready', async () => {
     if (isDevelopment && !process.env.IS_TEST) {
-    // Install Vue Devtools
+        // Install Vue Devtools
         try {
             await installExtension(VUEJS3_DEVTOOLS);
         } catch (e) {

@@ -1,6 +1,11 @@
 import { dySign } from '@/render/common/lib/X-Bogus';
 import { dySignNew } from '@/render/common/lib/a_bogus';
 
+let showVerifyLinkCallback;
+export const addNeedShowVerifyLinkListener = (lis) => {
+    showVerifyLinkCallback = lis;
+};
+
 export default {
     xbogusSign: async (url, useragent) => {
         const ret = dySign(url, useragent);
@@ -14,5 +19,10 @@ export default {
     },
     logRender: (str, type = 'log') => {
         console[type](`from-server:---${str}`);
+    },
+    renderVerifyLink: async (link, fp) => {
+        if (showVerifyLinkCallback) {
+            showVerifyLinkCallback(link, fp);
+        }
     },
 };
