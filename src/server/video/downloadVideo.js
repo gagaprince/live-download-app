@@ -120,6 +120,7 @@ export const downloadSmallVideoByLink = async (link, options = {}) => {
                         res(filePath);
                     },
                     fail: (e) => {
+                        global.logRender('下载出错：', e);
                         console.log(`Error: ${e}`);
                         res('');
                     },
