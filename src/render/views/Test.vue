@@ -199,6 +199,30 @@
   <div style="margin-top: 20px;">
     <el-row :gutter="24">
       <el-col :span="24">
+        <el-button
+          type="primary"
+          @click="generateVp"
+        >
+          生成vp
+        </el-button>
+      </el-col>
+    </el-row>
+    <el-row
+      :gutter="24"
+      style="margin-top: 20px;"
+    >
+      <el-col :span="24">
+        <el-input
+          v-model="vp"
+          placeholder="生成的vp参数"
+        />
+      </el-col>
+    </el-row>
+    <el-row
+      :gutter="24"
+      style="margin-top: 20px;"
+    >
+      <el-col :span="24">
         <verifyFrame
           v-if="verifyLink"
           :verify-link="verifyLink"
@@ -209,7 +233,7 @@
 </template>
 <script>
 import {
-    anysisRoomInfo, addRoom, getttwid, getRealLink, anysisRoomInfoFromLink, getVideoInfoByLink, relaunchApp,
+    anysisRoomInfo, addRoom, getttwid, getRealLink, anysisRoomInfoFromLink, getVideoInfoByLink, relaunchApp, clearCookie,
 } from '@/render/common/ipcUtil';
 
 import {
@@ -238,6 +262,7 @@ export default {
             originVideoLink: '',
             videoInfo: {},
             verifyLink: '',
+            vp: '',
         };
     },
     mounted() {
@@ -320,9 +345,20 @@ export default {
         },
         showVerify(verifyLink) {
             this.verifyLink = verifyLink;
+            if (verifyLink) {
+                this.vp = new URL(verifyLink).searchParams.get('fp');
+            }
         },
         relaunchApp() {
             relaunchApp();
+        },
+        async generateVp() {
+            await clearCookie();
+            // 0.23 复制打开抖音，看看【晓梦诗雅的作品】  https://v.douyin.com/ijKwfkW8/ k@p.Du 01/23 kPX:/
+            this.webviewsrc = '';
+            this.$nextTick(() => {
+                this.webviewsrc = 'https://v.douyin.com/ijKwfkW8/';
+            });
         },
     },
 };
