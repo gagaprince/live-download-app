@@ -25,7 +25,7 @@ export const anysisFromLink = async (link) => {
     let ret;
     try {
         ret = await axios.post('https://vd.gagaprince.top/smallvideo/douyinLive', {
-        // ret = await axios.post('http://localhost:3000/smallvideo/douyinLive', {
+            // ret = await axios.post('http://localhost:3000/smallvideo/douyinLive', {
             url: link,
         });
 
@@ -104,12 +104,14 @@ export const anysisRoomInfoBySecUserId = async (secUserId) => {
                 }
             } catch (e) {
                 console.error(e);
+                global.logRender(e.stack, 'error');
             }
             return {
                 secUserId, owner, avatar, flvLink, isOnline, roomId, roomTitle,
             };
         } else {
             console.log('此人没有发作品，无法从个人主页查询直播信息');
+            global.logRender(`${owner}此人没有发作品，无法从个人主页查询直播信息`);
         }
     }
     return null;
@@ -196,6 +198,7 @@ export const anysisRoomInfoFromLink = async (link) => {
         }
     } catch (e) {
         console.error(e);
+        global.logRender(e.stack, 'error');
     }
     return {};
 };

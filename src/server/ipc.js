@@ -1,8 +1,9 @@
 import { Event, HandleEvents, RenderReceiveEvents } from '@/common/eventConst';
 
+
 const { URL } = require('url');
 
-const { ipcMain } = require('electron');
+const { ipcMain, app } = require('electron');
 
 const controllerMap = {};
 
@@ -182,4 +183,12 @@ export const clearCookie = async () => {
     }
 };
 
+
+// 重启应用
+export const relaunchApp = () => {
+    app.relaunch();
+    app.exit(0);
+};
+
 registHandle(HandleEvents.CLEAR_COOKIE, clearCookie);
+registHandle(HandleEvents.RELAUNCH_APP, relaunchApp);

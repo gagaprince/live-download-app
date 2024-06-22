@@ -68,13 +68,19 @@
         >
           打开控制台
         </el-button>
+        <el-button
+          type="primary"
+          @click="relaunchApp"
+        >
+          重启app
+        </el-button>
       </el-col>
     </el-row>
   </div>
 </template>
 <script>
 import {
-    getWorkspace, setWorkspace, selectDirectory, getVideoWorkspace, setVideoWorkspace, openDevTool,
+    getWorkspace, setWorkspace, selectDirectory, getVideoWorkspace, setVideoWorkspace, openDevTool, relaunchApp,
 } from '@/render/common/ipcUtil';
 
 export default {
@@ -118,6 +124,9 @@ export default {
         },
         openDevTool() {
             openDevTool();
+        },
+        relaunchApp() {
+            relaunchApp();
         },
     },
 };

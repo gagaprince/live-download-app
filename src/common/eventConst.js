@@ -34,6 +34,7 @@ export const HandleEvents = {
     DOWNLOAD_SMALL_VIDEO: 'download_small_video',
     OPEN_DEV_TOOLS: 'open_dev_tools',
     CLEAR_COOKIE: 'clear_cookie',
+    RELAUNCH_APP: 'relaunch_app',
 };
 
 export const RenderReceiveEvents = {

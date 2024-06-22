@@ -186,6 +186,18 @@
   </div>
   <div style="margin-top: 20px;">
     <el-row :gutter="24">
+      <el-col :span="8">
+        <el-button
+          type="primary"
+          @click="relaunchApp"
+        >
+          重启app
+        </el-button>
+      </el-col>
+    </el-row>
+  </div>
+  <div style="margin-top: 20px;">
+    <el-row :gutter="24">
       <el-col :span="24">
         <verifyFrame
           v-if="verifyLink"
@@ -197,7 +209,7 @@
 </template>
 <script>
 import {
-    anysisRoomInfo, addRoom, getttwid, getRealLink, anysisRoomInfoFromLink, getVideoInfoByLink,
+    anysisRoomInfo, addRoom, getttwid, getRealLink, anysisRoomInfoFromLink, getVideoInfoByLink, relaunchApp,
 } from '@/render/common/ipcUtil';
 
 import {
@@ -308,6 +320,9 @@ export default {
         },
         showVerify(verifyLink) {
             this.verifyLink = verifyLink;
+        },
+        relaunchApp() {
+            relaunchApp();
         },
     },
 };

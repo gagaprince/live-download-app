@@ -81,6 +81,7 @@ class ObserverTask {
             }
         } catch (e) {
             console.error(e);
+            global.logRender(e.stack, 'error');
         }
         return false;
     }

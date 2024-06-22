@@ -101,3 +101,5 @@ export const downloadSmallVideoByLink = async (link, options) => await ipcRender
 export const openDevTool = async () => await ipcRenderer.invoke(HandleEvents.OPEN_DEV_TOOLS);
 
 export const clearCookie = async () => await ipcRenderer.invoke(HandleEvents.CLEAR_COOKIE);
+
+export const relaunchApp = async () => await ipcRenderer.invoke(HandleEvents.RELAUNCH_APP);
