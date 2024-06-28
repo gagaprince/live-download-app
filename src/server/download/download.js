@@ -8,11 +8,13 @@ export class Download {
         timeout = 10,
         success,
         fail,
+        headers,
     }) {
         this.writer = null;
         this.status = 'init';
         this.downloadUrl = url;
         this.filePath = filePath;
+        this.headers = headers;
         this.success = success;
         this.fail = fail;
         this.timeout = timeout;
@@ -20,11 +22,15 @@ export class Download {
     }
 
     async downloadFile() {
-        const response = await axios({
+        const options = {
             url: this.downloadUrl,
             method: 'GET',
             responseType: 'stream',
-        });
+        };
+        if (this.headers) {
+            options.headers = this.headers;
+        }
+        const response = await axios(options);
 
         const writer = fs.createWriteStream(this.filePath);
         this.writer = writer;

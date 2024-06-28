@@ -116,6 +116,11 @@ export const downloadSmallVideoByLink = async (link, options = {}) => {
                 const downloader = new Download({
                     url: videoUrl,
                     filePath,
+                    headers: {
+                        Referer: videoUrl,
+                        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1',
+                        Range: 'bytes=0-',
+                    },
                     success: () => {
                         res(filePath);
                     },
