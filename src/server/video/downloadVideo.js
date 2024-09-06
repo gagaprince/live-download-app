@@ -144,6 +144,7 @@ export const downloadSmallVideoByLink = async (link, options = {}) => {
                     if (!fs.existsSync(fileDir)) {
                         fs.mkdirSync(fileDir, { recursive: true }); // recursive选项确保创建嵌套目录
                     }
+                    console.log(images[i]);
                     const downloader = new Download({
                         url: images[i],
                         filePath,

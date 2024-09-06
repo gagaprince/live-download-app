@@ -242,7 +242,8 @@ export default {
                 const videoInfo = await downloadSmallVideoByLink(link, { fp, link });
                 const flag = this.checkVideoInfoVerify(videoInfo);
                 if (flag) {
-                    if (videoInfo && videoInfo.videoUrl) {
+                    console.log(videoInfo);
+                    if (videoInfo && (videoInfo.videoUrl || (videoInfo.images && videoInfo.images.length))) {
                         console.log('视频信息:', videoInfo);
                         this.videoInfos.push(videoInfo);
                     }
