@@ -660,8 +660,11 @@ export default {
         },
         // 当按下鼠标键
         startMove(e) {
+            console.log('startMove');
             e.preventDefault();
             // 如果move 为true 表示当前可以拖动
+            console.log('this.move:', this.move);
+            console.log('this.crop:', this.crop);
             if (this.move && !this.crop) {
                 if (!this.canMove) {
                     return false;
@@ -712,7 +715,7 @@ export default {
                 this.cropW = 0;
                 this.cropH = 0;
             }
-            return false;
+            return true;
         },
 
         // 移动端缩放
@@ -772,7 +775,7 @@ export default {
                 }
                 this.scale = scale;
             }
-            return false;
+            return true;
         },
 
         cancelTouchScale() {
@@ -859,7 +862,7 @@ export default {
                     axis: this.getImgAxis(),
                 });
             });
-            return false;
+            return true;
         },
         // 移动图片结束
         leaveImg() {
@@ -931,7 +934,7 @@ export default {
                 return false;
             }
             this.scale = scale;
-            return false;
+            return true;
         },
 
         // 修改图片大小函数
@@ -953,7 +956,7 @@ export default {
                 return false;
             }
             this.scale = scale;
-            return false;
+            return true;
         },
         // 创建截图框
         createCrop(e) {
@@ -1289,6 +1292,7 @@ export default {
         },
         // 截图移动
         cropMove(e) {
+            console.log('cropMove');
             e.preventDefault();
             if (!this.canMoveBox) {
                 this.crop = false;
@@ -1492,8 +1496,7 @@ export default {
                     const imgW = trueWidth * this.scale * dpr;
                     const imgH = trueHeight * this.scale * dpr;
                     // 图片x轴偏移
-                    let dx = (this.x - cropOffsertX + (this.trueWidth * (1 - this.scale)) / 2)
-            * dpr;
+                    let dx = (this.x - cropOffsertX + (this.trueWidth * (1 - this.scale)) / 2) * dpr;
                     // 图片y轴偏移
                     let dy = (this.y - cropOffsertY + (this.trueHeight * (1 - this.scale)) / 2)
             * dpr;
@@ -1673,22 +1676,35 @@ export default {
             const cropOffsertY = this.cropOffsertY;
             img.onload = () => {
                 if (this.cropW !== 0) {
+                    let dpr = 1;
+                    // eslint-disable-next-line no-bitwise
+                    if (this.high & !this.full) {
+                        dpr = window.devicePixelRatio;
+                    }
+                    // eslint-disable-next-line no-bitwise
+                    if ((this.enlarge !== 1) & !this.full) {
+                        dpr = Math.abs(Number(this.enlarge));
+                    }
+                    console.log('dpr:', dpr);
+                    console.log('scale:', this.scale);
+                    console.log('cropW:', this.cropW);
                     // const dpr = 1;
                     const width = desW;
                     const height = desH;
-                    const imgW = trueWidth;
-                    const imgH = trueHeight;
+                    const imgW = this.cropW / this.scale;
+                    const imgH = this.cropH / this.scale;
                     // 图片x轴偏移
                     console.log(this.x, cropOffsertX);
-                    const dx = this.x - cropOffsertX;
+                    const dx = cropOffsertX / this.scale;
                     // 图片y轴偏移
-                    const dy = this.y - cropOffsertY;
+                    const dy = cropOffsertY / this.scale;
                     // 保存状态
                     // eslint-disable-next-line no-use-before-define
                     setCanvasSize(width, height);
                     ctx.save();
-                    console.log(-dx, -dy, imgW, imgH, 0, 0, width, height);
-                    ctx.drawImage(img, -dx, -dy, imgW, imgH, 0, 0, width, height);
+                    console.log(dx, dy, imgW, imgH, 0, 0, width, height);
+                    console.log('img w h:', img.width, img.height);
+                    ctx.drawImage(img, dx, dy, imgW, imgH, 0, 0, width, height);
                     ctx.restore();
                 } else {
                     const width = trueWidth * this.scale;

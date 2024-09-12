@@ -73,3 +73,8 @@ export default {
   }
 }
 </style>
+<style>
+html{
+  background: #fff;
+}
+</style>

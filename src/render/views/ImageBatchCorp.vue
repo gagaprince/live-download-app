@@ -53,12 +53,20 @@
           />
         </el-space>
       </el-col>
-      <el-col :span="6">
+      <el-col :span="3">
         <el-button
           type="primary"
           @click="download"
         >
           下载zip
+        </el-button>
+      </el-col>
+      <el-col :span="3">
+        <el-button
+          type="primary"
+          @click="clearImg"
+        >
+          清空
         </el-button>
       </el-col>
     </el-row>
@@ -193,7 +201,7 @@ export default {
             aLink.click();
         },
         download() {
-            console.log('download1111');
+            console.log('download1');
             const { uid } = this.fileList[0];
             console.log('uid:', uid);
             this.$refs[`cropper_${uid}`][0].getCropBlobSelf(async (data) => {
@@ -217,6 +225,10 @@ export default {
                 console.error(e);
             }
         },
+        clearImg() {
+            this.fileList = [];
+            // 清空上传列表
+        },
     },
 };
 </script>
@@ -229,11 +241,14 @@ export default {
         margin-bottom: 20px;
     }
     .preview-img-list {
-        column-width: 300px;
-        column-gap: 50px;
-        counter-reset: count;
-        width: 1050px;
-        margin: 0 auto;
+        //column-width: 300px;
+        //column-gap: 50px;
+        //counter-reset: count;
+        // width: 1050px;
+        // margin: 0 auto;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-around;
     }
 
     .preview-img-item {
