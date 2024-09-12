@@ -21,7 +21,9 @@
     "element-plus": "^2.3.12",
     "emoji-regex": "^10.3.0",
     "got": "11",
+    "jszip": "^3.10.1",
     "vue": "^3.2.13",
+    "vue-cropper": "^0.6.5",
     "vue-router": "^4.0.13"
   },
   "devDependencies": {

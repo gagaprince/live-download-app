@@ -25,6 +25,10 @@
               <el-icon><Coordinate /></el-icon>
               <span>短视频下载</span>
             </el-menu-item>
+            <el-menu-item index="/image-batch-corp">
+              <el-icon><Scissor /></el-icon>
+              <span>图片裁切</span>
+            </el-menu-item>
             <el-menu-item index="/setting">
               <el-icon><Setting /></el-icon>
               <span>设置</span>
@@ -45,7 +49,7 @@
 export default {
     data() {
         return {
-            activeMenu: '/living-room-info',
+            activeMenu: '/image-batch-corp',
         };
     },
     watch: {

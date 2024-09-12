@@ -5,6 +5,7 @@ import Setting from '@/render/views/Setting.vue';
 import LivingDownload from '@/render/views/LivingDownload.vue';
 import LivingRoomInfo from '@/render/views/LivingRoomInfo.vue';
 import BatchVideoDownload from '@/render/views/BatchVideoDownload.vue';
+import ImageBatchCorp from '@/render/views/ImageBatchCorp.vue';
 import Test from '@/render/views/Test.vue';
 
 const routes = [
@@ -28,6 +29,11 @@ const routes = [
                 path: 'batch-download',
                 name: 'batchDownload',
                 component: BatchVideoDownload,
+            },
+            {
+                path: 'image-batch-corp',
+                name: 'imageBatchCorp',
+                component: ImageBatchCorp,
             },
             {
                 path: 'setting',
