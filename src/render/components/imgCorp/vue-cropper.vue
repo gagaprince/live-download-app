@@ -404,6 +404,11 @@ export default {
         y() {
             this.showPreview();
         },
+        fixedNumber(val) {
+            if (val) {
+                this.goAutoCrop();
+            }
+        },
         autoCrop(val) {
             if (val) {
                 this.goAutoCrop();

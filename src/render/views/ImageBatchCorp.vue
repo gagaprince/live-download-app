@@ -58,7 +58,7 @@
           type="primary"
           @click="download"
         >
-          下载zip
+          保存
         </el-button>
       </el-col>
       <el-col :span="3">
@@ -108,19 +108,38 @@
         >
           <div
             v-for="(fileItem, index) in fileList"
-            :key="index"
+            :key="fileItem.uid"
             class="preview-img-item"
             :style="{width: fileItem.imgInfo.showWidth+'px', height: fileItem.imgInfo.showHeight+'px'}"
           >
             <VueCropper
               :ref="'cropper_'+fileItem.uid"
               v-bind="corpOptions"
+              :fixed-number="fixedNumber"
               :img="fileItem.imgInfo.src"
             />
+            <div
+              class="del-frame"
+              @click="deleteFile(index)"
+            >
+              <el-icon><Delete /></el-icon>
+            </div>
           </div>
         </div>
       </el-col>
     </el-row>
+    <el-dialog
+      v-model="showDialog"
+      title="进度"
+      width="500"
+    >
+      <div class="dialog-content">
+        <el-progress
+          type="circle"
+          :percentage="progress"
+        />
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -138,10 +157,6 @@ export default {
             formObj: {
                 width: 1024,
                 height: 1024,
-                ratio: {
-                    width: 1,
-                    height: 1,
-                },
                 renameFormat: '',
                 startIndex: 0,
             },
@@ -150,7 +165,6 @@ export default {
                 canScale: false,
                 autoCrop: true,
                 fixed: true,
-                fixedNumber: [1, 1],
                 canMove: false,
                 limitMinSize: 1,
                 centerBox: true,
@@ -158,8 +172,16 @@ export default {
                 maxImgSize: 5000,
             },
             fileList: [],
-            testImg: '',
+            showDialog: false,
+            progress: 0,
         };
+    },
+    computed: {
+        fixedNumber() {
+            const { width, height } = this.formObj;
+            console.log('fixed,', width, height);
+            return [width, height];
+        },
     },
     methods: {
         readImgFile(file) {
@@ -186,8 +208,18 @@ export default {
                     img.onerror = (ex) => rej(ex);
                     // res(e.target.result); // 将图片的base64数据赋值给imageUrl
                 };
+
                 reader.onerror = (e) => rej(e);
             });
+        },
+        formatString(template, index) {
+            // 将索引转换为字符串，并填充到4位数
+            const xtmp = template.split('-')[1];
+            if (xtmp) {
+                const formattedIndex = String(index).padStart(xtmp.length, '0');
+                return template.replace(xtmp, formattedIndex);
+            }
+            return template;
         },
         _downloadFile(content) {
             const aLink = document.createElement('a');
@@ -200,17 +232,29 @@ export default {
             aLink.href = window.URL.createObjectURL(new Blob(binaryData));
             aLink.click();
         },
-        download() {
-            console.log('download1');
-            const { uid } = this.fileList[0];
-            console.log('uid:', uid);
-            this.$refs[`cropper_${uid}`][0].getCropBlobSelf(async (data) => {
-                console.log('data:', data);
-                const zip = new JSZip();
-                zip.file('1.png', data, { binary: true });
-                const content = await zip.generateAsync({ type: 'blob' });
-                this._downloadFile(content);
-            }, 1024, 1024);
+        packageImg(fileInfo, idx, zip, width, height) {
+            const { uid } = fileInfo;
+            const renameFormat = this.formObj.renameFormat || 'image-xxxx';
+            const fileNamePrefix = this.formatString(renameFormat, idx);
+            return new Promise((res) => {
+                this.$refs[`cropper_${uid}`][0].getCropBlobSelf(async (data) => {
+                    zip.file(`${fileNamePrefix}.png`, data, { binary: true });
+                    res();
+                }, width, height);
+            });
+        },
+        async download() {
+            this.startPackageAndSave();
+            const zip = new JSZip();
+            const { width, height, startIndex } = this.formObj;
+            for (let i = 0; i < this.fileList.length; i++) {
+                const tmpFile = this.fileList[i];
+                await this.packageImg(tmpFile, Number(i) + Number(startIndex), zip, width, height);
+                this.setProgress((i * 100) / this.fileList.length);
+            }
+            const content = await zip.generateAsync({ type: 'blob' });
+            this.endPackageAndSave();
+            this._downloadFile(content);
         },
         async onFileChange(file) {
             console.log('onFileChange file:', file);
@@ -225,9 +269,24 @@ export default {
                 console.error(e);
             }
         },
+        startPackageAndSave() {
+            this.setProgress(0);
+            this.showDialog = true;
+        },
+        endPackageAndSave() {
+            this.showDialog = false;
+        },
+        setProgress(val) {
+            this.progress = parseInt(val, 10);
+        },
         clearImg() {
             this.fileList = [];
             // 清空上传列表
+            // this.showDialog = true;
+        },
+        deleteFile(fileIndex) {
+            console.log(fileIndex);
+            this.fileList.splice(fileIndex, 1); // 删除对应索引的文件
         },
     },
 };
@@ -261,6 +320,25 @@ export default {
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         // width:300px;
         // height: 300px;
+        .del-frame{
+            position: absolute;
+            top:0;
+            right:0;
+            cursor: pointer;
+            background: #4993fd;
+            width:30px;
+            height: 30px;
+            border-radius: 0 0 5px 5px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    }
+    .dialog-content{
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 
     // .preview-img-item img {
