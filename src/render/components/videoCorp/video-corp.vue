@@ -139,7 +139,6 @@ export default {
                 }
             } catch (e) {
                 console.error(e);
-            } finally {
                 cb();
             }
         },

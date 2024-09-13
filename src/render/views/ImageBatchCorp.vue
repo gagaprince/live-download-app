@@ -252,6 +252,7 @@ export default {
             const fileNamePrefix = this.formatString(renameFormat, idx);
             return new Promise((res) => {
                 this.$refs[`cropper_${uid}`][0].getCropBlobSelf(async (data) => {
+                    console.log('getCropBlobSelf data:', data);
                     if (data) {
                         zip.file(`${fileNamePrefix}.png`, data, { binary: true });
                     }
