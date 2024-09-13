@@ -87,7 +87,7 @@
             <upload-filled />
           </el-icon>
           <div class="el-upload__text">
-            拖拽图片到这里 <em>或点击上传</em>
+            拖拽视频或者图片到这里 <em>或点击上传</em>
           </div>
           <template #tip>
             <div class="el-upload__tip">
@@ -110,14 +110,26 @@
             v-for="(fileItem, index) in fileList"
             :key="fileItem.uid"
             class="preview-img-item"
-            :style="{width: fileItem.imgInfo.showWidth+'px', height: fileItem.imgInfo.showHeight+'px'}"
+            :style="{width: fileItem.fileInfo.showWidth+'px', height: fileItem.fileInfo.showHeight+'px'}"
           >
-            <VueCropper
-              :ref="'cropper_'+fileItem.uid"
-              v-bind="corpOptions"
-              :fixed-number="fixedNumber"
-              :img="fileItem.imgInfo.src"
-            />
+            <template v-if="fileItem.fileType==='image'">
+              <VueCropper
+                :ref="'cropper_'+fileItem.uid"
+                v-bind="corpOptions"
+                :fixed-number="fixedNumber"
+                :img="fileItem.fileInfo.src"
+              />
+            </template>
+            <template v-else>
+              <VideoCorp
+                :ref="'cropper_'+fileItem.uid"
+                :frame-width="previewImgWidth"
+                :video-file="fileItem.file"
+                :img-corp-options="corpOptions"
+                :fixed-number="fixedNumber"
+                @onVideoInfoInit="changeVideoWH(index, $event)"
+              />
+            </template>
             <div
               class="del-frame"
               @click="deleteFile(index)"
@@ -146,10 +158,12 @@
 <script>
 import JSZip from 'jszip';
 import VueCropper from '@/render/components/imgCorp/vue-cropper.vue';
+import VideoCorp from '@/render/components/videoCorp/video-corp.vue';
 
 export default {
     components: {
         VueCropper,
+        VideoCorp,
     },
     data() {
         return {
@@ -238,7 +252,9 @@ export default {
             const fileNamePrefix = this.formatString(renameFormat, idx);
             return new Promise((res) => {
                 this.$refs[`cropper_${uid}`][0].getCropBlobSelf(async (data) => {
-                    zip.file(`${fileNamePrefix}.png`, data, { binary: true });
+                    if (data) {
+                        zip.file(`${fileNamePrefix}.png`, data, { binary: true });
+                    }
                     res();
                 }, width, height);
             });
@@ -257,16 +273,30 @@ export default {
             this._downloadFile(content);
         },
         async onFileChange(file) {
-            console.log('onFileChange file:', file);
-            try {
-                const imgInfo = await this.readImgFile(file);
+            console.log('onFileChange  file:', file);
+            const fileType = file.raw.type || '';
+            if (fileType.indexOf('image') !== -1) {
+                try {
+                    const imgInfo = await this.readImgFile(file);
+                    this.fileList.push({
+                        uid: file.uid,
+                        file,
+                        fileInfo: imgInfo,
+                        fileType: 'image',
+                    });
+                } catch (e) {
+                    console.error(e);
+                }
+            } else if (fileType.indexOf('video') !== -1) {
                 this.fileList.push({
                     uid: file.uid,
                     file,
-                    imgInfo,
+                    fileInfo: {
+                        showWidth: 300,
+                        showHeight: 600,
+                    },
+                    fileType: 'video',
                 });
-            } catch (e) {
-                console.error(e);
             }
         },
         startPackageAndSave() {
@@ -287,6 +317,13 @@ export default {
         deleteFile(fileIndex) {
             console.log(fileIndex);
             this.fileList.splice(fileIndex, 1); // 删除对应索引的文件
+        },
+        changeVideoWH(index, videoInfo) {
+            console.log(index, videoInfo);
+            const fileObj = this.fileList[index];
+            fileObj.fileInfo = videoInfo;
+            console.log('fileObj:', fileObj);
+            this.fileList = [...this.fileList];
         },
     },
 };
@@ -315,9 +352,10 @@ export default {
         margin-bottom: 10px;
         // width: calc(100% / 4);
         margin-top:20px;
-        background: red;
+        background: #fff;
         border-radius: 8px;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
         // width:300px;
         // height: 300px;
         .del-frame{
@@ -325,7 +363,7 @@ export default {
             top:0;
             right:0;
             cursor: pointer;
-            background: #4993fd;
+            background: rgba(0,0,0,0.5);
             width:30px;
             height: 30px;
             border-radius: 0 0 5px 5px;
