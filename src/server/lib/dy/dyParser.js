@@ -102,9 +102,15 @@ export const getRealLink = async (link) => {
 export const getAwemeId = async (originLink) => {
     const relink = await getRealLink(originLink);
     if (relink) {
+        let type = 'video';
         const match = relink.match(/video\/(\d+)\//) || [];
-        const awemeId = match[1] || '';
-        return awemeId;
+        let awemeId = match[1] || '';
+        if (!awemeId) {
+            const match1 = relink.match(/note\/(\d+)\//) || [];
+            awemeId = match1[1] || '';
+            type = 'note';
+        }
+        return { awemeId, type };
     }
     return '';
 };
@@ -162,6 +168,7 @@ export const getVideoInfoByAwemeId = async (awemeId, options) => {
         const bogusObj = await abogusSign(url, headers['user-agent']);
         const newUrl = bogusObj.url;
         console.log('newUrl:', newUrl);
+        console.log('headers:', headers);
         const ret = await request({
             url: newUrl,
             headers,

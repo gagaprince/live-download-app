@@ -16,21 +16,31 @@ const fs = require('fs');
 
 // 获取短视频内容
 async function getVideoInfoByDYLink(originLink, options) {
-    const awemeId = await getAwemeId(originLink);
+    const { awemeId, type } = await getAwemeId(originLink);
     const videoInfo = await getVideoInfoByAwemeId(awemeId, options);
+    // console.log('videoInfo:', videoInfo);
     if (videoInfo.code === 123) {
         // 需要验证
         return videoInfo;
     }
+    // console.log('videoInfo:', videoInfo.aweme_detail.video);
     try {
-        const videoUrl = videoInfo.aweme_detail.video.play_addr.url_list[0] || '';
         const cover = videoInfo.aweme_detail.video.cover.url_list[0] || '';
         const user = videoInfo.aweme_detail.author.nickname || '';
         const desc = videoInfo.aweme_detail.desc || '';
-        const videoInfoMy = {
-            videoUrl, cover, user, desc,
-        };
-        return videoInfoMy;
+        if (type === 'video') {
+            const videoUrl = videoInfo.aweme_detail.video.play_addr.url_list[0] || '';
+            const videoInfoMy = {
+                videoUrl, cover, user, desc,
+            };
+            return videoInfoMy;
+        } else {
+            const videoUrl = '';
+            const images = videoInfo.aweme_detail.images.map((item) => item.url_list[0]);
+            return {
+                videoUrl, cover, user, type, desc, images,
+            };
+        }
     } catch (e) {
         console.error(e);
     }
