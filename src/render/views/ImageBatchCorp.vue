@@ -131,6 +131,12 @@
               />
             </template>
             <div
+              class="cp-frame"
+              @click="cpFile(index)"
+            >
+              <el-icon><CopyDocument /></el-icon>
+            </div>
+            <div
               class="del-frame"
               @click="deleteFile(index)"
             >
@@ -315,6 +321,14 @@ export default {
             // 清空上传列表
             // this.showDialog = true;
         },
+        cpFile(fileIndex) {
+            console.log('cpFile:', fileIndex);
+            const srcFile = this.fileList[fileIndex];
+            const newFile = { ...srcFile };
+            newFile.uid = Date.now();
+            this.fileList.splice(fileIndex + 1, 0, newFile);
+            this.fileList = [...this.fileList];
+        },
         deleteFile(fileIndex) {
             console.log(fileIndex);
             this.fileList.splice(fileIndex, 1); // 删除对应索引的文件
@@ -359,6 +373,20 @@ export default {
         overflow: hidden;
         // width:300px;
         // height: 300px;
+        .cp-frame{
+            position: absolute;
+            top:0;
+            right:40px;
+            cursor: pointer;
+            background: rgba(0,0,0,0.5);
+            width:30px;
+            height: 30px;
+            border-radius: 0 0 5px 5px;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
         .del-frame{
             position: absolute;
             top:0;
@@ -367,7 +395,7 @@ export default {
             background: rgba(0,0,0,0.5);
             width:30px;
             height: 30px;
-            border-radius: 0 0 5px 5px;
+            border-radius: 0 0 0 5px;
             color: #fff;
             display: flex;
             align-items: center;
