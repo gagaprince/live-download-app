@@ -91,7 +91,7 @@
           </div>
           <template #tip>
             <div class="el-upload__tip">
-              图片文件大小小于100M
+              图片文件大小小于100M,当前待导出图片{{ fileList.length||0 }}张
             </div>
           </template>
         </el-upload>
