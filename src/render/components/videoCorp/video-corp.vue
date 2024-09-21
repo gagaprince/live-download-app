@@ -102,8 +102,8 @@ export default {
                 video.load();
 
                 video.onloadedmetadata = () => {
-                    const width = video.videoWidth;
-                    const height = video.videoHeight;
+                    const width = video.videoWidth || 1080;
+                    const height = video.videoHeight || 1920;
                     const showWidth = this.frameWidth;
                     const showHeight = (showWidth * height) / width;
                     this.videoInfo = {
