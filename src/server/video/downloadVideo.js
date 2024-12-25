@@ -29,7 +29,9 @@ async function getVideoInfoByDYLink(originLink, options) {
         const user = videoInfo.aweme_detail.author.nickname || '';
         const desc = videoInfo.aweme_detail.desc || '';
         if (type === 'video') {
-            const videoUrl = videoInfo.aweme_detail.video.play_addr.url_list[0] || '';
+            // console.log(JSON.stringify(videoInfo));
+            const urlList = videoInfo.aweme_detail.video.play_addr.url_list;
+            const videoUrl = urlList[urlList.length - 1] || '';
             const videoInfoMy = {
                 videoUrl, cover, user, desc,
             };

@@ -234,18 +234,22 @@ export default {
         },
         formatString(template, index) {
             // 将索引转换为字符串，并填充到4位数
-            const xtmp = template.split('-')[1];
+            let xtmp = template.split('-')[1];
+            if (!xtmp) {
+                template = `${template}-xxxx`;
+                xtmp = 'xxxx';
+            }
             if (xtmp) {
                 const formattedIndex = String(index).padStart(xtmp.length, '0');
                 return template.replace(xtmp, formattedIndex);
             }
             return template;
         },
-        _downloadFile(content) {
+        _downloadFile(content, fileKey = Date.now()) {
             const aLink = document.createElement('a');
             const evt = document.createEvent('HTMLEvents');
             evt.initEvent('click', true, true); // initEvent 不加后两个参数在FF下会报错  事件类型，是否冒泡，是否阻止浏览器的默认行为
-            aLink.download = `${Date.now()}.zip`;
+            aLink.download = `${fileKey}.zip`;
             const binaryData = [];
             console.log(content);
             binaryData.push(content);
@@ -255,14 +259,15 @@ export default {
         packageImg(fileInfo, idx, zip, width, height) {
             const { uid } = fileInfo;
             const renameFormat = this.formObj.renameFormat || 'image-xxxx';
+            const fileKey = renameFormat.split('-')[0];
             const fileNamePrefix = this.formatString(renameFormat, idx);
             return new Promise((res) => {
                 this.$refs[`cropper_${uid}`][0].getCropBlobSelf(async (data) => {
                     console.log('getCropBlobSelf data:', data);
                     if (data) {
-                        zip.file(`${fileNamePrefix}.png`, data, { binary: true });
+                        zip.file(`${fileKey}/train/20_${fileKey}/${fileNamePrefix}.png`, data, { binary: true });
                     }
-                    res();
+                    res(fileKey);
                 }, width, height);
             });
         },
@@ -270,14 +275,15 @@ export default {
             this.startPackageAndSave();
             const zip = new JSZip();
             const { width, height, startIndex } = this.formObj;
+            let fileKey = '';
             for (let i = 0; i < this.fileList.length; i++) {
                 const tmpFile = this.fileList[i];
-                await this.packageImg(tmpFile, Number(i) + Number(startIndex), zip, width, height);
+                fileKey = await this.packageImg(tmpFile, Number(i) + Number(startIndex), zip, width, height);
                 this.setProgress((i * 100) / this.fileList.length);
             }
             const content = await zip.generateAsync({ type: 'blob' });
             this.endPackageAndSave();
-            this._downloadFile(content);
+            this._downloadFile(content, fileKey);
         },
         async onFileChange(file) {
             console.log('onFileChange  file:', file);
