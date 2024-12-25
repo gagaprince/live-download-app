@@ -31,9 +31,9 @@ async function getVideoInfoByDYLink(originLink, options) {
         if (type === 'video') {
             // console.log(JSON.stringify(videoInfo));
             const urlList = videoInfo.aweme_detail.video.play_addr.url_list;
-            const videoUrl = urlList[urlList.length - 1] || '';
+            const videoUrl = urlList[0] || '';
             const videoInfoMy = {
-                videoUrl, cover, user, desc,
+                videoUrl, cover, user, desc, downloadRefer: originLink,
             };
             return videoInfoMy;
         } else {
@@ -115,7 +115,7 @@ export const downloadSmallVideoByLink = async (link, options = {}) => {
     if (info) {
         console.log(info);
         const {
-            videoUrl, user, type = 'video', images = [],
+            videoUrl, user, type = 'video', images = [], downloadRefer = '',
         } = info;
         const fileDir = path.resolve(getVideoWorkSpace(), formatDay(), user);
         if (type === 'video') {
@@ -129,7 +129,7 @@ export const downloadSmallVideoByLink = async (link, options = {}) => {
                     url: videoUrl,
                     filePath,
                     headers: {
-                        Referer: videoUrl,
+                        Referer: downloadRefer || videoUrl,
                         'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1',
                         Range: 'bytes=0-',
                     },
