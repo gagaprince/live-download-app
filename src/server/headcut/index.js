@@ -17,6 +17,10 @@ const buildThumb = (filePath) => {
         const image = nativeImage.createFromPath(filePath);
         if (image.isEmpty()) return '';
         const resized = image.resize({ width: 320 });
+        // PNG 可能带透明通道, 用 PNG 编码保留 alpha, 其余沿用体积更小的 JPEG
+        if (path.extname(filePath).toLowerCase() === '.png') {
+            return `data:image/png;base64,${resized.toPNG().toString('base64')}`;
+        }
         return `data:image/jpeg;base64,${resized.toJPEG(82).toString('base64')}`;
     } catch (err) {
         console.error('生成缩略图失败:', filePath, err);
@@ -170,6 +174,15 @@ const buildArgs = (options) => {
     }
     if (options.confidence) {
         args.push('--confidence', String(options.confidence));
+    }
+    if (options.removeBg) {
+        args.push('--remove-bg');
+        if (options.bgModel) {
+            args.push('--bg-model', String(options.bgModel));
+        }
+        if (options.bgColor) {
+            args.push('--bg-color', String(options.bgColor));
+        }
     }
     return args;
 };

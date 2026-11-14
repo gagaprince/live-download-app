@@ -82,6 +82,59 @@
             裁切边长 = 人脸框 × 该倍数, 调大包含更多上半身, 默认 2.6
           </el-text>
         </el-form-item>
+        <el-form-item label="去除背景">
+          <el-switch v-model="form.removeBg" />
+          <el-text
+            class="hint-text"
+            type="info"
+          >
+            裁切后抠除背景, 需 headcut 安装可选依赖; 首次使用自动下载分割模型
+          </el-text>
+        </el-form-item>
+        <template v-if="form.removeBg">
+          <el-form-item label="分割模型">
+            <el-select
+              v-model="form.bgModel"
+              style="width: 360px"
+            >
+              <el-option
+                label="人像专用 u2net_human_seg（默认, 效果最好, 约176MB）"
+                value="u2net_human_seg"
+              />
+              <el-option
+                label="轻量快速 silueta（约43MB, 效果接近）"
+                value="silueta"
+              />
+              <el-option
+                label="通用高精度 isnet-general-use（约176MB）"
+                value="isnet-general-use"
+              />
+              <el-option
+                label="通用分割 u2net（约176MB）"
+                value="u2net"
+              />
+              <el-option
+                label="动漫插画 isnet-anime（约176MB）"
+                value="isnet-anime"
+              />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="背景方式">
+            <el-radio-group v-model="form.bgMode">
+              <el-radio label="transparent">
+                透明底（自动输出 PNG）
+              </el-radio>
+              <el-radio label="solid">
+                纯色底
+              </el-radio>
+            </el-radio-group>
+            <el-color-picker
+              v-if="form.bgMode === 'solid'"
+              v-model="form.bgColor"
+              class="bg-color-picker"
+            />
+          </el-form-item>
+        </template>
         <el-form-item label="headcut 项目目录">
           <el-input
             v-model="form.headcutHome"
@@ -192,6 +245,7 @@
           />
           <el-image
             :src="item.thumb"
+            :class="{ 'thumb-transparent': item.name.toLowerCase().endsWith('.png') }"
             fit="cover"
             class="result-thumb"
             @click="previewImage(item)"
@@ -257,6 +311,10 @@ const defaultForm = () => ({
     size: 1024,
     scale: 2.6,
     recursive: true,
+    removeBg: false,
+    bgModel: 'u2net_human_seg',
+    bgMode: 'transparent',
+    bgColor: '#FFFFFF',
 });
 
 export default {
@@ -353,7 +411,13 @@ export default {
             this.resetProgress();
             this.running = true;
             try {
-                const result = await runHeadCut({ ...this.form });
+                const options = { ...this.form };
+                if (options.removeBg && options.bgMode === 'solid') {
+                    options.bgColor = this.hexToRgb(options.bgColor);
+                } else {
+                    options.bgColor = '';
+                }
+                const result = await runHeadCut(options);
                 if (result && result.success === false && result.message) {
                     this.$message.error(result.message);
                 }
@@ -456,6 +520,11 @@ export default {
             if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
             return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
         },
+        hexToRgb(hex) {
+            const matched = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex || '');
+            if (!matched) return '';
+            return matched.slice(1).map((item) => parseInt(item, 16)).join(',');
+        },
         onProgress(payload) {
             if (!payload) return;
             if (typeof payload.percentage === 'number') {
@@ -529,6 +598,18 @@ export default {
         display: block;
         cursor: zoom-in;
         background: #f5f7fa;
+    }
+    .thumb-transparent {
+        background-image:
+            linear-gradient(45deg, #dcdfe6 25%, transparent 25%),
+            linear-gradient(-45deg, #dcdfe6 25%, transparent 25%),
+            linear-gradient(45deg, transparent 75%, #dcdfe6 75%),
+            linear-gradient(-45deg, transparent 75%, #dcdfe6 75%);
+        background-size: 16px 16px;
+        background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+    }
+    .bg-color-picker {
+        margin-left: 12px;
     }
     .thumb-loading {
         display: flex;
