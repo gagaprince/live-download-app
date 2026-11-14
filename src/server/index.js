@@ -7,3 +7,4 @@ export * from './link/openLink';
 export * from './download/index';
 export * from './selectDirOrFile/index';
 export * from './video/downloadVideo';
+export * from './headcut/index';

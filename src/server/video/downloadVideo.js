@@ -1,6 +1,6 @@
 import { registHandle } from '../ipc';
 import { HandleEvents } from '@/common/eventConst';
-import { getAwemeId, getVideoInfoByAwemeId } from '@/server/lib/dy/dyParser';
+import { parseDyShareLink } from '@/server/lib/dy/dyBrowser';
 import { getVideoInfoFromDLpanda } from '@/server/lib/tt/ttParser';
 import { getVideoInfoByLinkFromKs } from '@/server/lib/ks/ksParser';
 import { getVideoInfoByXHSLink } from '@/server/lib/xhs/xhsParser';
@@ -10,43 +10,27 @@ import { formatDay } from '../util/date';
 
 const path = require('path');
 const fs = require('fs');
-// import { getVideoInfoFromDLpanda } from './parserLib/ttParser';
-// import { getVideoInfoByLinkFromKs } from './parserLib/ksParser';
 
+const MOBILE_UA = 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1';
+
+const getImgExt = (url) => {
+    const match = (url || '').match(/\.(jpeg|jpg|png|webp|gif|bmp)(\?|$)/i);
+    return match ? match[1].toLowerCase().replace('jpeg', 'jpg') : 'jpg';
+};
 
 // 获取短视频内容
-async function getVideoInfoByDYLink(originLink, options) {
-    const { awemeId, type } = await getAwemeId(originLink);
-    const videoInfo = await getVideoInfoByAwemeId(awemeId, options);
-    // console.log('videoInfo:', videoInfo);
-    if (videoInfo.code === 123) {
-        // 需要验证
+async function getVideoInfoByDYLink(originLink) {
+    const videoInfo = await parseDyShareLink(originLink);
+    if (videoInfo && videoInfo.errorMsg) {
         return videoInfo;
     }
-    // console.log('videoInfo:', videoInfo.aweme_detail.video);
-    try {
-        const cover = videoInfo.aweme_detail.video.cover.url_list[0] || '';
-        const user = videoInfo.aweme_detail.author.nickname || '';
-        const desc = videoInfo.aweme_detail.desc || '';
-        if (type === 'video') {
-            // console.log(JSON.stringify(videoInfo));
-            const urlList = videoInfo.aweme_detail.video.play_addr.url_list;
-            const videoUrl = urlList[0] || '';
-            const videoInfoMy = {
-                videoUrl, cover, user, desc, downloadRefer: originLink,
-            };
-            return videoInfoMy;
-        } else {
-            const videoUrl = '';
-            const images = videoInfo.aweme_detail.images.map((item) => item.url_list[0]);
-            return {
-                videoUrl, cover, user, type, desc, images,
-            };
-        }
-    } catch (e) {
-        console.error(e);
+    if (!videoInfo || (!videoInfo.videoUrl && !(videoInfo.images && videoInfo.images.length))) {
+        return { errorMsg: '抖音作品解析失败，请稍后重试' };
     }
-    return {};
+    return {
+        ...videoInfo,
+        downloadRefer: originLink,
+    };
 }
 async function getVideoInfoByTTLink(originLink) {
     const ret = await getVideoInfoFromDLpanda(originLink);
@@ -70,7 +54,7 @@ function checkPL(link = '') {
         return 'tt';
     } else if (link.indexOf('kuaishou') !== -1) {
         return 'ks';
-    } else if (link.indexOf('xhslink') !== -1) {
+    } else if (link.indexOf('xhslink') !== -1 || link.indexOf('xiaohongshu.com') !== -1) {
         return 'xhs';
     }
 
@@ -115,61 +99,56 @@ export const downloadSmallVideoByLink = async (link, options = {}) => {
     if (info) {
         console.log(info);
         const {
-            videoUrl, user, type = 'video', images = [], downloadRefer = '',
+            videoUrl, user, type = 'video', images = [], imageExts = [], liveVideos = [], downloadRefer = '',
         } = info;
+        if (!videoUrl && (!images || !images.length)) {
+            return info;
+        }
         const fileDir = path.resolve(getVideoWorkSpace(), formatDay(), user);
+        if (!fs.existsSync(fileDir)) {
+            fs.mkdirSync(fileDir, { recursive: true }); // recursive选项确保创建嵌套目录
+        }
+        const startDownload = (url, filePath, headers = null) => new Promise((res) => {
+            const downloader = new Download({
+                url,
+                filePath,
+                headers: headers || undefined,
+                success: () => {
+                    res(filePath);
+                },
+                fail: (e) => {
+                    global.logRender('下载出错：', e);
+                    console.log(`Error: ${e}`);
+                    res('');
+                },
+            });
+            downloader.startDownload();
+        });
         if (type === 'video') {
             const filePath = path.resolve(fileDir, `${Date.now()}.mp4`);
-            // 下载
-            const ret = await new Promise((res) => {
-                if (!fs.existsSync(fileDir)) {
-                    fs.mkdirSync(fileDir, { recursive: true }); // recursive选项确保创建嵌套目录
-                }
-                const downloader = new Download({
-                    url: videoUrl,
-                    filePath,
-                    headers: {
-                        Referer: downloadRefer || videoUrl,
-                        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1',
-                        Range: 'bytes=0-',
-                    },
-                    success: () => {
-                        res(filePath);
-                    },
-                    fail: (e) => {
-                        global.logRender('下载出错：', e);
-                        console.log(`Error: ${e}`);
-                        res('');
-                    },
-                });
-                downloader.startDownload();
+            const ret = await startDownload(videoUrl, filePath, {
+                Referer: downloadRefer || videoUrl,
+                'User-Agent': MOBILE_UA,
+                Range: 'bytes=0-',
             });
             info.fileDir = fileDir;
             info.filePath = ret;
         } else {
-            // 下载图片
+            // 下载图文/实况照片（实况照片额外下载每一张的动态mp4）
             let ret = '';
             const time = Date.now();
             for (let i = 0; i < images.length; i++) {
-                const filePath = path.resolve(fileDir, `${time}_${i}.png`);
-                ret = await new Promise((res) => {
-                    if (!fs.existsSync(fileDir)) {
-                        fs.mkdirSync(fileDir, { recursive: true }); // recursive选项确保创建嵌套目录
-                    }
-                    console.log(images[i]);
-                    const downloader = new Download({
-                        url: images[i],
-                        filePath,
-                        success: () => {
-                            res(filePath);
-                        },
-                        fail: (e) => {
-                            console.log(`Error: ${e}`);
-                            res('');
-                        },
+                const ext = imageExts[i] || getImgExt(images[i]);
+                const filePath = path.resolve(fileDir, `${time}_${i}.${ext}`);
+                ret = await startDownload(images[i], filePath);
+                if (type === 'livePhoto' && liveVideos[i]) {
+                    const livePath = path.resolve(fileDir, `${time}_${i}_live.mp4`);
+                    await startDownload(liveVideos[i], livePath, {
+                        Referer: downloadRefer || liveVideos[i],
+                        'User-Agent': MOBILE_UA,
+                        Range: 'bytes=0-',
                     });
-                    downloader.startDownload();
-                });
+                }
             }
             info.fileDir = fileDir;
             info.filePath = ret;

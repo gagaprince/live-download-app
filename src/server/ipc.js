@@ -85,6 +85,8 @@ export const initIpc = (win) => {
     });
 };
 
+export const getMainWindow = () => mainWin;
+
 /**
  *
  * @param {*} options

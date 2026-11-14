@@ -187,6 +187,7 @@ export default {
             batchDownloadFlag: false,
             batchTasks: [],
             videoInfos: [],
+            errorMsgs: [],
             verifyDialogFlag: false,
             verifyLink: '',
             webviewsrc: '',
@@ -215,6 +216,7 @@ export default {
                 const list = originLinks.split('\n');
                 console.log(list);
                 this.videoInfos = [];
+                this.errorMsgs = [];
                 this.batchDownload(list);
             }
         },
@@ -246,6 +248,8 @@ export default {
                     if (videoInfo && (videoInfo.videoUrl || (videoInfo.images && videoInfo.images.length))) {
                         console.log('视频信息:', videoInfo);
                         this.videoInfos.push(videoInfo);
+                    } else if (videoInfo && videoInfo.errorMsg) {
+                        this.errorMsgs.push(videoInfo.errorMsg);
                     }
                 }
                 console.log('-------------------------------');
@@ -258,7 +262,7 @@ export default {
             this.batchTasks = [];
             if (!this.videoInfos.length) {
                 this.$message({
-                    message: '下载中有报错请稍后重试',
+                    message: this.errorMsgs[0] || '下载中有报错请稍后重试',
                     type: 'error',
                 });
             } else {

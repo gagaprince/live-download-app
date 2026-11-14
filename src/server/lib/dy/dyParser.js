@@ -110,6 +110,11 @@ export const getAwemeId = async (originLink) => {
             awemeId = match1[1] || '';
             type = 'note';
         }
+        if (!awemeId) {
+            const match2 = relink.match(/slides\/(\d+)\//) || [];
+            awemeId = match2[1] || '';
+            type = 'livePhoto';
+        }
         return { awemeId, type };
     }
     return '';

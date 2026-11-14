@@ -35,11 +35,17 @@ export const HandleEvents = {
     OPEN_DEV_TOOLS: 'open_dev_tools',
     CLEAR_COOKIE: 'clear_cookie',
     RELAUNCH_APP: 'relaunch_app',
+    HEAD_CUT: 'head_cut',
+    HEAD_CUT_STOP: 'head_cut_stop',
+    HEAD_CUT_LIST_FILES: 'head_cut_list_files',
+    HEAD_CUT_READ_IMAGE: 'head_cut_read_image',
+    HEAD_CUT_DELETE_FILE: 'head_cut_delete_file',
 };
 
 export const RenderReceiveEvents = {
     PING: 'render_ping',
     PONG: 'render_pong',
+    HEAD_CUT_PROGRESS: 'head_cut_progress',
 };
 
 export const RoomTypeOpts = [

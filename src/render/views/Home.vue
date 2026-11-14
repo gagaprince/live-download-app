@@ -29,6 +29,10 @@
               <el-icon><Scissor /></el-icon>
               <span>图片视频裁切</span>
             </el-menu-item>
+            <el-menu-item index="/head-cut">
+              <el-icon><Crop /></el-icon>
+              <span>一键裁切头像</span>
+            </el-menu-item>
             <el-menu-item index="/setting">
               <el-icon><Setting /></el-icon>
               <span>设置</span>

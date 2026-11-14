@@ -1,210 +1,163 @@
-
 import axios from 'axios';
 import { request } from '../request';
 
+const MOBILE_UA = 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1';
+const DESKTOP_UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36';
 
+const toHttps = (url) => (url && url.startsWith('http://') ? url.replace('http://', 'https://') : url);
+
+// 短链还原：xhslink.com / xhslink.cn 会 302 到带 xsec_token 的真实笔记链接
 // http://xhslink.com/M5ijAH
 export const getXHSRealLink = async (link) => {
+    if (!link) return '';
+    // 已经是完整的笔记页链接，直接使用（必须保留 xsec_token 等查询参数）
+    if (link.indexOf('xiaohongshu.com') !== -1) return link;
     try {
         const ret = await request({
             url: link,
             responseType: 'text',
-            followRedirects: 0,
+            followRedirects: false,
             headers: {
-                Host: 'xhslink.com',
                 pragma: 'no-cache',
-                cookie: '',
                 accept: '*/*',
-                'user-agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1',
+                'user-agent': MOBILE_UA,
                 'accept-language': 'zh-CN,zh;q=0.9',
                 'cache-control': 'no-cache',
             },
         });
         const headers = ret.headers || {};
-        const location = headers.Location || headers.location || '';
-        return location;
+        return headers.location || headers.Location || '';
     } catch (e) {
-        console.error(e);
+        const resp = e.response || {};
+        const headers = resp.headers || {};
+        if (headers.location || headers.Location) {
+            return headers.location || headers.Location;
+        }
+        console.error('xhs short link resolve failed:', e.message);
     }
     return '';
 };
 
-// function parseCookieObj(cookie) {
-//     const keys = ['acw_tc', 'abRequestId']; // 这里是你要获取的 cookie 的 key
-//     const cookies = {};
-
-//     for (let i = 0; i < keys.length; i++) {
-//         const regex = new RegExp(`${keys[i]}=(.*?);`, 'g'); // 使用正则表达式匹配
-//         const match = regex.exec(cookie);
-//         if (match) {
-//             const value = match[1].trim();
-//             cookies[keys[i]] = value;
-//         }
-//     }
-//     return cookies;
-// }
-
-// const getHtmlFromLink = async (url, cookies) => {
-//     try {
-//         const ret = await request({
-//             url,
-//             data: {},
-//             responseType: 'text',
-//             followRedirects: 0,
-//             headers: {
-//                 Host: 'www.xiaohongshu.com',
-//                 cookie: cookies ? `acw_tc=${cookies.acw_tc}` : '',
-//                 accept: '*/*',
-//                 'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
-//                 'accept-language': 'zh-CN,zh;q=0.9',
-//                 'cache-control': 'no-cache',
-//             },
-//         });
-//         const { httpCode, data, headers } = ret;
-//         if (httpCode === 302) {
-//             const location = headers.Location || headers.location || '';
-//             const setCookies = headers['Set-Cookie'] || '';
-//             const parseCookies = parseCookieObj(setCookies);
-//             return await getHtmlFromLink(location, parseCookies);
-//         } else {
-//             return data;
-//         }
-//     } catch (e) {
-//         console.error(e);
-//     }
-//     return '';
-// };
-
-const getHtmlFromLinkWithAxios = async (link) => {
-    console.log(axios);
-    return axios.get(link, {
+const fetchNoteHtml = async (url) => {
+    const ret = await axios.get(url, {
         headers: {
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+            // 桌面端 UA 才能拿到包含 noteDetailMap 的完整 SSR 页面，移动端页面结构不同
+            'User-Agent': DESKTOP_UA,
+            accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'accept-language': 'zh-CN,zh;q=0.9',
+            'cache-control': 'no-cache',
         },
-    }).then((ret) => {
-        console.log(ret.data);
-        console.log(ret.status);
-        console.log(ret.headers);
-        return ret.data;
+        timeout: 15000,
+        maxRedirects: 5,
     });
+    return typeof ret.data === 'string' ? ret.data : '';
 };
 
-const parseInitData = (htmlContent) => {
-    const text = htmlContent;
-    // console.log(text);
-    const pattern = /window\.__INITIAL_STATE__=(\{.*\})<\/script>/;
-    const match = text.match(pattern);
-
-    if (match) {
-        const matchStr = match[1].replace(/\\u002F/g, '/');
-        // console.log(matchStr);
-        // return JSON.parse(matchStr);
-        return matchStr;
+// 小红书会在状态数据里注入字面量 undefined，直接 JSON.parse 会抛错，这里只替换作为 JSON 值出现的 undefined
+const parseInitialState = (html) => {
+    const match = html.match(/window\.__INITIAL_STATE__=(\{.*\})<\/script>/);
+    if (!match) return null;
+    const sanitized = match[1].replace(/([[,:])undefined(?=[,\]}])/g, '$1null');
+    try {
+        return JSON.parse(sanitized);
+    } catch (e) {
+        console.error('xhs __INITIAL_STATE__ parse failed:', e.message);
+        return null;
     }
-    return {};
 };
 
-const parseVideoUrl = (initData) => {
-    const text = initData;
-    const pattern = /"originVideoKey":"(.*?)"/;
-    const match = text.match(pattern);
+const pickNote = (state) => {
+    const noteMap = state && state.note && state.note.noteDetailMap;
+    if (!noteMap) return null;
+    const currentId = state.note.currentNoteId;
+    const id = noteMap[currentId] ? currentId : Object.keys(noteMap)[0];
+    const entry = noteMap[id];
+    return entry && entry.note ? entry.note : null;
+};
 
-    if (match) {
-        console.log(match[1]); // 打印匹配到的originVideoKey的值
-        return `https://sns-video-bd.xhscdn.com/${match[1]}`;
-    } else {
-        const pattern2 = /"masterUrl":"(.*?)"/;
-        const match2 = text.match(pattern2);
-        if (match2) {
-            console.log('masterUrl：', match2[1]);
-            return match2[1];
+const extractVideoUrl = (note, rawStateText) => {
+    const stream = note.video && note.video.media && note.video.media.stream;
+    if (stream) {
+        // 优先 h264 兼容性最好，依次降级 h265 / av1
+        const groups = [stream.h264, stream.h265, stream.av1].filter(Array.isArray);
+        for (const group of groups) {
+            const item = group.find((v) => v && v.masterUrl);
+            if (item) return toHttps(item.masterUrl);
+        }
+        for (const group of groups) {
+            const item = group.find((v) => v && Array.isArray(v.backupUrls) && v.backupUrls.length);
+            if (item) return toHttps(item.backupUrls[0]);
         }
     }
-    return '';
-};
-
-const parseCover = (initData) => {
-    const text = initData;
-    const pattern = /"avatar":"(.*?)"/;
-    const match = text.match(pattern);
-
-    if (match) {
-        console.log(match[1]);
-        return match[1];
+    // 结构变化时的正则兜底
+    const originMatch = rawStateText.match(/"originVideoKey":"(.*?)"/);
+    if (originMatch) {
+        return `https://sns-video-bd.xhscdn.com/${originMatch[1]}`;
     }
-    return '';
-};
-const parseUser = (initData) => {
-    const text = initData;
-    const pattern = /"nickname":"(.*?)"/;
-    const match = text.match(pattern);
-
-    if (match) {
-        console.log(match[1]);
-        return match[1];
-    }
-    return '';
-};
-const parseDesc = (html) => {
-    const regex = /<meta name="og:title" content="(.*?)">/;
-    const match = html.match(regex);
-    if (match) {
-        console.log(match[1]); // 输出: 那些拍不出第二次的人生瞬间 - 小红书
-        return match[1];
-    }
-    return '';
-    // <meta name="og:title" content="那些拍不出第二次的人生瞬间 - 小红书"></meta>
-};
-
-const parseType = (html) => {
-    const regex = /<meta name="og:type" content="(.*?)">/;
-    const match = html.match(regex);
-    if (match) {
-        console.log(match[1]); // 输出: 那些拍不出第二次的人生瞬间 - 小红书
-        return match[1];
+    const masterMatch = rawStateText.match(/"masterUrl":"(.*?)"/);
+    if (masterMatch) {
+        return toHttps(masterMatch[1].replace(/\\u002F/g, '/'));
     }
     return '';
 };
 
-const parseImages = (html) => {
-    const regex = /<meta name="og:image" content="(.*?)">/g;
-    let matches;
-    let images = [];
-    matches = regex.exec(html);
-    while (matches !== null) {
-        images.push(matches[1]);
-        matches = regex.exec(html);
-    }
-    images = images.map((img) => {
-        const regex1 = /\/([a-zA-Z0-9]+)!/;
+const extractImages = (note) => (note.imageList || [])
+    .map((img) => toHttps(img.urlDefault || img.url || img.urlPre || ''))
+    .filter(Boolean);
 
-        const match1 = img.match(regex1);
+const extractCover = (note, images) => {
+    const videoCover = note.video && note.video.image;
+    const cover = (note.cover && (note.cover.url || note.cover.urlDefault))
+        || (videoCover && (videoCover.firstFrame || videoCover.thumbnail))
+        || images[0]
+        || (note.user && note.user.avatar)
+        || '';
+    return toHttps(cover);
+};
 
-        if (match1) {
-            return `https://sns-img-qc.xhscdn.com/${match1[1]}?imageView2/2/w/format/png`;
-        }
-        return img;
-    });
-    return images;
+const extractDesc = (note, html) => {
+    if (note.desc) return note.desc;
+    if (note.title) return note.title;
+    const ogTitle = html.match(/<meta property="og:title" content="(.*?)">/);
+    return ogTitle ? ogTitle[1] : '';
 };
 
 export const getVideoInfoByXHSLink = async (link) => {
+    const emptyResult = {
+        videoUrl: '', cover: '', user: '', type: 'image', desc: '', images: [], errorMsg: '',
+    };
     const realLink = await getXHSRealLink(link);
-    console.log(realLink);
-    const html = await getHtmlFromLinkWithAxios(realLink);
-    const type = parseType(html);
-    const initData = parseInitData(html);
-    let videoUrl = '';
-    let images = [];
-    if (type === 'video') {
-        videoUrl = parseVideoUrl(initData);
-    } else {
-        images = parseImages(html);
+    if (!realLink) {
+        return { ...emptyResult, errorMsg: '小红书短链还原失败，请检查链接后重试' };
     }
-    const cover = parseCover(initData);
-    const user = parseUser(initData);
-    const desc = parseDesc(html);
+    let html;
+    try {
+        html = await fetchNoteHtml(realLink);
+    } catch (e) {
+        console.error('xhs note page fetch failed:', e.message);
+        return { ...emptyResult, errorMsg: '小红书笔记页面访问失败，请稍后重试' };
+    }
+    const state = parseInitialState(html);
+    const note = state && pickNote(state);
+    if (!note) {
+        return { ...emptyResult, errorMsg: '未能解析到笔记内容，可能已删除、链接失效或需要验证' };
+    }
+    const isVideo = note.type === 'video';
+    const images = isVideo ? [] : extractImages(note);
+    const videoUrl = isVideo ? extractVideoUrl(note, html) : '';
+    if (isVideo && !videoUrl) {
+        return { ...emptyResult, errorMsg: '视频地址解析失败，请稍后重试' };
+    }
+    if (!isVideo && !images.length) {
+        return { ...emptyResult, errorMsg: '图片地址解析失败，请稍后重试' };
+    }
     return {
-        videoUrl, cover, user, type, desc, images,
+        videoUrl,
+        cover: extractCover(note, images),
+        user: (note.user && note.user.nickname) || '小红书用户',
+        type: isVideo ? 'video' : 'image',
+        desc: extractDesc(note, html),
+        images,
+        downloadRefer: realLink,
     };
 };

@@ -103,3 +103,21 @@ export const openDevTool = async () => await ipcRenderer.invoke(HandleEvents.OPE
 export const clearCookie = async () => await ipcRenderer.invoke(HandleEvents.CLEAR_COOKIE);
 
 export const relaunchApp = async () => await ipcRenderer.invoke(HandleEvents.RELAUNCH_APP);
+
+export const runHeadCut = async (options) => await ipcRenderer.invoke(HandleEvents.HEAD_CUT, options);
+
+export const stopHeadCut = async () => await ipcRenderer.invoke(HandleEvents.HEAD_CUT_STOP);
+
+export const listHeadCutImages = async (dir) => await ipcRenderer.invoke(HandleEvents.HEAD_CUT_LIST_FILES, dir);
+
+export const readHeadCutImage = async (filePath, dir) => await ipcRenderer.invoke(
+    HandleEvents.HEAD_CUT_READ_IMAGE,
+    filePath,
+    dir,
+);
+
+export const deleteHeadCutFile = async (filePath, dir) => await ipcRenderer.invoke(
+    HandleEvents.HEAD_CUT_DELETE_FILE,
+    filePath,
+    dir,
+);

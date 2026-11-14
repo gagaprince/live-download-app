@@ -6,6 +6,7 @@ import LivingDownload from '@/render/views/LivingDownload.vue';
 import LivingRoomInfo from '@/render/views/LivingRoomInfo.vue';
 import BatchVideoDownload from '@/render/views/BatchVideoDownload.vue';
 import ImageBatchCorp from '@/render/views/ImageBatchCorp.vue';
+import HeadCut from '@/render/views/HeadCut.vue';
 import Test from '@/render/views/Test.vue';
 
 const routes = [
@@ -34,6 +35,11 @@ const routes = [
                 path: 'image-batch-corp',
                 name: 'imageBatchCorp',
                 component: ImageBatchCorp,
+            },
+            {
+                path: 'head-cut',
+                name: 'headCut',
+                component: HeadCut,
             },
             {
                 path: 'setting',
